@@ -1,22 +1,24 @@
 body {
+  margin: 0;
   background: #111;
   color: white;
   font-family: Arial, sans-serif;
   text-align: center;
-  padding-left: 420px;
-  padding-right: 420px;
+  padding: 0 420px; /* desktop */
 }
+
 
 #map-container {
   position: relative;
-  width: 800px;
-  margin: auto;
+  width: min(800px, 100%);
+  margin: 0 auto;
 }
-
 #map {
   width: 100%;
-  border-radius: 8px;
+  height: auto;
+  display: block;
 }
+
 
 .marker {
   position: absolute;
@@ -271,4 +273,62 @@ button {
 /* petit bonus : curseur sur les images cliquables */
 .panel img {
   cursor: zoom-in;
+}
+
+@media (max-width: 900px) {
+  body {
+    padding: 12px; /* plus de paddings énormes */
+  }
+
+  /* Les panneaux deviennent des drawers en bas */
+  #panels-left, #panels-right {
+    position: fixed;
+    left: 0;
+    right: 0;
+    width: auto;
+    height: 42vh;          /* hauteur du drawer */
+    top: auto;
+    bottom: 0;
+    border-left: none;
+    border-right: none;
+    border-top: 2px solid #333;
+    background: #111;
+    z-index: 1000;
+  }
+
+  /* On empile : smokes + autres */
+  #panels-left {
+    bottom: 42vh;          /* drawer au-dessus */
+    height: 30vh;
+  }
+
+  #panels-right {
+    bottom: 0;
+    height: 42vh;
+  }
+
+  /* Map prend toute la largeur */
+  #map-container {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Images dans panels */
+  .panel img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Filtre plus lisible */
+  #filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+
+  .sep {
+    display: none;
+  }
 }
