@@ -2,7 +2,6 @@ const container = document.getElementById("map-container");
 const map = document.getElementById("map");
 const coordsText = document.getElementById("coords");
 
-
 const panelsLeft = document.getElementById("panels-left");
 const panelsRight = document.getElementById("panels-right");
 if (!panelsLeft || !panelsRight) {
@@ -12,6 +11,22 @@ if (!panelsLeft || !panelsRight) {
 
 const lightbox = document.getElementById("lightbox");
 const lightboxImg = document.getElementById("lightbox-img");
+
+const chooser = document.getElementById("chooser");
+const chooserTitle = document.getElementById("chooser-title");
+const chooserList = document.getElementById("chooser-list");
+const chooserClose = document.getElementById("chooser-close");
+
+if (chooserClose && chooser) {
+  chooserClose.addEventListener("click", () => chooser.classList.add("hidden"));
+}
+
+if (chooser) {
+  chooser.addEventListener("click", (e) => {
+    if (e.target === chooser) chooser.classList.add("hidden");
+  });
+}
+
 
 function openLightbox(src) {
   lightboxImg.src = src;
@@ -56,22 +71,37 @@ const markerById = new Map();
 
 const markers = [];
 
-lineups.forEach(lineup => {
+const lineupsByTarget = new Map();
+
+// groupement
+lineups.forEach(lu => {
+  const key = lu.target || lu.id; // si pas de target, fallback = id
+  if (!lineupsByTarget.has(key)) lineupsByTarget.set(key, []);
+  lineupsByTarget.get(key).push(lu);
+});
+
+// créer un marker par groupe
+lineupsByTarget.forEach((group, key) => {
+  const first = group[0]; // pour position du marker (cible)
   const marker = document.createElement("div");
-  marker.classList.add("marker", lineup.type);
-  marker.style.left = lineup.x + "%";
-  marker.style.top = lineup.y + "%";
-  marker.onclick = () => openPopup(lineup);
+  marker.classList.add("marker", first.type);
+  marker.style.left = first.x + "%";
+  marker.style.top = first.y + "%";
+
+  marker.onclick = () => {
+    if (group.length === 1) {
+      openPopup(group[0]);
+      return;
+    }
+    openChooser(group);
+  };
 
   container.appendChild(marker);
-  markerById.set(lineup.id, marker);
 
-  markers.push({
-    marker,
-    type: lineup.type,
-    side: lineup.side
-  });
+  // pour filtres : on garde le type/side du marker (prend le first)
+  markers.push({ marker, type: first.type, side: first.side, group });
 });
+
 
 const checkboxes = document.querySelectorAll("#filters input");
 checkboxes.forEach(cb => cb.addEventListener("change", updateFilters));
@@ -321,4 +351,25 @@ function shortenEndByPx(start, end, offsetPx) {
     x: pxToPercent(newEx, "x"),
     y: pxToPercent(newEy, "y")
   };
+}
+
+function openChooser(group) {
+  // option: trier par name
+  group.sort((a,b) => (a.name || "").localeCompare(b.name || ""));
+
+  chooserTitle.textContent =
+  `${group[0].name} — ${group.length} variants`;
+  chooserList.innerHTML = "";
+
+  group.forEach(lu => {
+    const btn = document.createElement("button");
+    btn.textContent = lu.variant || lu.name || lu.id;
+    btn.onclick = () => {
+      chooser.classList.add("hidden");
+      openPopup(lu);
+    };
+    chooserList.appendChild(btn);
+  });
+
+  chooser.classList.remove("hidden");
 }

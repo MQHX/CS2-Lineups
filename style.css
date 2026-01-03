@@ -19,39 +19,47 @@ body {
   display: block;
 }
 
-
 .marker {
   position: absolute;
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   transform: translate(-50%, -50%) rotate(45deg);
   cursor: pointer;
   color: inherit;
 }
 
-/* Les deux traits de la croix */
+/* 2 traits couleur, avec outline via box-shadow (net, pas flou) */
 .marker::before,
 .marker::after {
   content: "";
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 2px;      /* finesse */
-  height: 14px;
-  background: currentColor;
   transform: translate(-50%, -50%);
+  background: currentColor;
+
+  /* outline noire nette */
+  box-shadow:
+    0 0 0 1px #000;
+  border-radius: 2px;
 }
 
-/* Deuxième trait */
+/* vertical */
+.marker::before {
+  width: 1.2px;
+  height: 16px;
+}
+
+/* horizontal */
 .marker::after {
-  width: 14px;
-  height: 2px;
+  width: 16px;
+  height: 1.2px;
 }
-
 
 .marker:hover {
-  filter: brightness(1.6);
+  filter: brightness(1.25);
 }
+
 
 .smoke {
   color: #6fa8ff; /* bleu clair */
@@ -349,5 +357,139 @@ button {
   /* la map garde de la place en bas quand les panneaux sont ouverts */
   body {
     padding-bottom: 45vh; /* ajuste si besoin */
+  }
+}
+
+/* Description des lineups */
+.panel p {
+  color: #4cff4c;              /* vert bien visible */
+  font-weight: 600;
+  background: rgba(76, 255, 76, 0.08); /* léger fond vert */
+  padding: 8px 10px;
+  border-left: 4px solid #4cff4c;
+  border-radius: 6px;
+  margin: 10px 0 14px;
+}
+
+#chooser {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 4000;
+  padding: 16px;
+}
+#chooser.hidden { display: none; }
+
+#chooser-box {
+  width: min(420px, 95vw);
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 14px;
+  text-align: left;
+}
+
+#chooser-title {
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+#chooser-list button {
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  margin: 6px 0;
+  border-radius: 10px;
+  border: 1px solid #333;
+  background: #151515;
+  color: white;
+  cursor: pointer;
+}
+#chooser-list button:hover {
+  filter: brightness(1.15);
+}
+
+#chooser-close {
+  width: 100%;
+  margin-top: 8px;
+}
+
+#chooser {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999; /* PLUS HAUT que panels / lightbox */
+}
+#chooser.hidden {
+  display: none;
+}
+
+.map-grid{
+  display:flex;
+  gap:12px;
+  justify-content:center;
+  flex-wrap:wrap;
+  padding:20px;
+}
+
+.map-card{
+  width:220px;
+  height:120px;
+  background:#1e1e1e;
+  border:1px solid #333;
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
+  color:white;
+}
+
+.map-card:hover{
+  filter:brightness(1.15);
+}
+
+.map-name{
+  font-weight:700;
+  font-size:18px;
+}
+
+#back-btn {
+  position: fixed;              /* ⬅️ clé du fix */
+  top: 12px;
+  left: 400px;                  /* largeur exacte du panneau gauche */
+  z-index: 2000;
+
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: white;
+  text-decoration: none;
+  font-weight: 700;
+  backdrop-filter: blur(4px);
+}
+
+#back-btn:hover {
+  filter: brightness(1.15);
+}
+
+
+@media (min-width: 901px) {
+  #back-btn {
+    left: 420px; /* 400 + petit gap */
+  }
+}
+
+@media (max-width: 900px) {
+  #back-btn {
+    left: 12px;
+    top: 12px;
   }
 }

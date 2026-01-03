@@ -1,44 +1,29 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>CS2 Lineups – Overpass</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CS2 Lineups – Choose map</title>
   <link rel="stylesheet" href="style.css">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 
-<h1>CS2 Lineups – Overpass</h1>
+<h1>CS2 Lineups</h1>
+<p>Choose a map</p>
 
-<div id="filters">
-  <label><input type="checkbox" value="smoke" checked> Smoke</label>
-  <label><input type="checkbox" value="flash" checked> Flash</label>
-  <label><input type="checkbox" value="molotov" checked> Molotov</label>
+<div class="map-grid">
+  <a class="map-card" href="viewer.html?map=overpass">
+    <div class="map-name">Overpass</div>
+  </a>
 
-  <span class="sep">|</span>
+  <a class="map-card" href="viewer.html?map=mirage">
+    <div class="map-name">Mirage</div>
+  </a>
 
-  <label><input type="checkbox" value="T" checked> T</label>
-  <label><input type="checkbox" value="CT" checked> CT</label>
+  <a class="map-card" href="viewer.html?map=inferno">
+    <div class="map-name">Inferno</div>
+  </a>
 </div>
-
-<div id="map-container">
-  <img src="maps/overpass.png" id="map">
-  <svg id="map-overlay"></svg>
-  <!-- Les points seront ajoutés par JS -->
-</div>
-
-<p id="coords">Click on the map to get coordinates</p>
-
-<div id="panels-left"></div>
-<div id="panels-right"></div>
-
-<div id="lightbox" class="hidden">
-  <img id="lightbox-img" alt="">
-</div>
-
-<script src="data/overpass.js"></script>
-<script src="script.js"></script>
 
 </body>
 </html>
-
