@@ -142,7 +142,7 @@ function openPopup(lineup) {
     <h4>Position</h4>
     <img src="${lineup.images.stand}">
 
-    <h4>Visée</h4>
+    <h4>Aim</h4>
     <img src="${lineup.images.aim}">
   `;
 
