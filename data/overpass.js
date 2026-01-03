@@ -1,4 +1,5 @@
 const lineups = [
+  // Monster smoke from CT
   {
     id: "monster_smoke_from_ct",
     target: "monster_smoke",
@@ -18,6 +19,7 @@ const lineups = [
       aim: "images/overpass/monster_from_ct_smoke_2.png"
     }
   },
+  // Monster molly
   {
     id: "monster_molly",
     name: "Monster",
@@ -35,6 +37,7 @@ const lineups = [
       aim: "images/overpass/monster_molly_2.png"
     }
   },
+  // Short smoke from CT
   {
     id: "short_smoke_from_ct",
     name: "Short",
@@ -52,6 +55,7 @@ const lineups = [
       aim: "images/overpass/short_from_ct_smoke_2.png"
     }
   },
+  // B site HOLD
   {
     id: "bsite_smoke",
     name: "B Site hold",
@@ -69,6 +73,7 @@ const lineups = [
       aim: "images/overpass/BSite_hold_smoke_2.png"
     }
   },
+  // Short molly
   {
     id: "short_molly",
     name: "Short",
@@ -86,6 +91,7 @@ const lineups = [
       aim: "images/overpass/short_molly_2.png"
     }
   },
+  // Bank smoke from banana
     {
     id: "bank_smoke",
     name: "Bank",
@@ -103,6 +109,7 @@ const lineups = [
       aim: "images/overpass/bank_smoke.png"
     }
   },
+  // Trash smoke from banana
     {
     id: "trash_smoke",
     name: "Trash",
@@ -120,6 +127,7 @@ const lineups = [
       aim: "images/overpass/trash_smoke.png"
     }
   },
+  // Truck molly from banana
     {
     id: "truck_molly",
     name: "Truck",
@@ -137,6 +145,7 @@ const lineups = [
       aim: "images/overpass/truck_molly.png"
     }
   },
+  // A flash from banana (1)
     {
     id: "a_flash_1",
     name: "Site first",
@@ -154,6 +163,7 @@ const lineups = [
       aim: "images/overpass/a_flash_1.png"
     }
   },
+  // A flash from banana (2)
     {
     id: "a_flash_2",
     name: "Site second",
@@ -170,6 +180,17 @@ const lineups = [
       stand: "images/overpass/a_flash.png",
       aim: "images/overpass/a_flash_2.png"
     }
+  },
+];
+
+
+
+
+const executes = [
+  {
+    id: "A_exec_from_banana",
+    name: "A Execute (banana)",
+    items: ["bank_smoke", "trash_smoke", "truck_molly"]
   },
 ];
 

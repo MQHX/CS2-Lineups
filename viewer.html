@@ -6,46 +6,51 @@
   <title>CS2 Lineups</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+  <h1 id="page-title">CS2 Lineups</h1>
 
-<h1 id="page-title">CS2 Lineups</h1>
+  <div id="filters">
+    <label><input type="checkbox" value="smoke" checked> Smoke</label>
+    <label><input type="checkbox" value="flash" checked> Flash</label>
+    <label><input type="checkbox" value="molotov" checked> Molotov</label>
 
-<div id="filters">
-  <label><input type="checkbox" value="smoke" checked> Smoke</label>
-  <label><input type="checkbox" value="flash" checked> Flash</label>
-  <label><input type="checkbox" value="molotov" checked> Molotov</label>
+    <span class="sep">|</span>
 
-  <span class="sep">|</span>
-
-  <label><input type="checkbox" value="T" checked> T</label>
-  <label><input type="checkbox" value="CT" checked> CT</label>
-</div>
-
-<div id="map-container">
-  <a id="back-btn" href="index.html">← Maps</a>
-  <img id="map" alt="Map">
-  <svg id="map-overlay"></svg>
-</div>
-
-
-<p id="coords">Click on the map to get coordinates</p>
-
-<div id="panels-left"></div>
-<div id="panels-right"></div>
-
-<div id="lightbox" class="hidden">
-  <img id="lightbox-img" alt="">
-</div>
-
-<div id="chooser" class="hidden">
-  <div id="chooser-box">
-    <div id="chooser-title"></div>
-    <div id="chooser-list"></div>
-    <button id="chooser-close">Cancel</button>
+    <label><input type="checkbox" value="T" checked> T</label>
+    <label><input type="checkbox" value="CT" checked> CT</label>
   </div>
-</div>
 
-<!-- Loader qui charge la bonne map -->
-<script src="loader.js"></script>
+  <!-- Boutons Executes (remplis par JS si executes existe) -->
+  <div id="executes"></div>
+
+  <div id="map-container">
+    <a id="back-btn" href="index.html" aria-label="Retour au choix des maps">← Maps</a>
+    <img id="map" alt="Map">
+    <svg id="map-overlay"></svg>
+  </div>
+
+  <p id="coords">Clique sur la map pour obtenir les coordonnées</p>
+
+  <!-- Panneaux latéraux -->
+  <div id="panels-left"></div>
+  <div id="panels-right"></div>
+
+  <!-- Lightbox images -->
+  <div id="lightbox" class="hidden" aria-hidden="true">
+    <img id="lightbox-img" alt="">
+  </div>
+
+  <!-- Chooser variantes (quand plusieurs lineups sur le même target) -->
+  <div id="chooser" class="hidden" aria-hidden="true">
+    <div id="chooser-box" role="dialog" aria-modal="true">
+      <div id="chooser-title"></div>
+      <div id="chooser-list"></div>
+      <button id="chooser-close" type="button">Annuler</button>
+    </div>
+  </div>
+
+  <!-- Loader qui charge data/<map>.js puis script.js -->
+  <script src="loader.js"></script>
 </body>
 </html>
