@@ -1,0 +1,274 @@
+body {
+  background: #111;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding-left: 420px;
+  padding-right: 420px;
+}
+
+#map-container {
+  position: relative;
+  width: 800px;
+  margin: auto;
+}
+
+#map {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.marker {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  transform: translate(-50%, -50%) rotate(45deg);
+  cursor: pointer;
+  color: inherit;
+}
+
+/* Les deux traits de la croix */
+.marker::before,
+.marker::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2px;      /* finesse */
+  height: 14px;
+  background: currentColor;
+  transform: translate(-50%, -50%);
+}
+
+/* Deuxième trait */
+.marker::after {
+  width: 14px;
+  height: 2px;
+}
+
+
+.marker:hover {
+  filter: brightness(1.6);
+}
+
+.smoke {
+  color: #6fa8ff; /* bleu clair */
+}
+
+.flash {
+  color: #ffd966; /* jaune doux */
+}
+
+.molotov {
+  color: #ff8c42; /* orange */
+}
+
+#popup {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 380px;        /* largeur ajustable */
+  height: 100vh;       /* pleine hauteur */
+  background: #1a1a1a;
+  padding: 20px;
+  border-left: 2px solid #333;
+  overflow-y: auto;    /* scroll si contenu long */
+  z-index: 1000;
+}
+
+.hidden {
+  display: none;
+}
+
+button {
+  margin-top: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+#coords {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #aaa;
+}
+
+#popup-image {
+  width: 100%;
+  margin-top: 12px;
+  border-radius: 8px;
+}
+
+/* Panneaux à gauche et à droite */
+#panels-left, #panels-right {
+  position: fixed;
+  top: 0;
+  width: 400px;
+  height: 100vh;
+  overflow-y: auto;
+  background: #111;
+  z-index: 1000;
+}
+
+#panels-left {
+  left: 0;
+  border-right: 2px solid #333;
+}
+
+#panels-right {
+  right: 0;
+  border-left: 2px solid #333;
+}
+
+/* Pour que la map ne soit pas cachée derrière les panneaux */
+#map-container {
+  position: relative;
+  width: 800px;
+  margin: 0 auto;
+}
+
+/* Optionnel : si tu veux plus de place, tu peux réduire la map ou les panneaux */
+
+.panel {
+  background: #1e1e1e;
+  padding: 15px;
+  margin: 10px;
+  border-radius: 10px;
+}
+
+.panel h2 {
+  margin-top: 0;
+}
+
+.panel img {
+  width: 100%;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+.close-btn {
+  float: right;
+  cursor: pointer;
+  color: #aaa;
+}
+.close-btn:hover {
+  color: white;
+}
+
+.panel h4 {
+  margin: 12px 0 5px;
+  font-size: 14px;
+  color: #bbb;
+  text-transform: uppercase;
+}
+
+#filters {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+#filters label {
+  margin: 0 10px;
+  font-size: 14px;
+  color: #ccc;
+}
+
+#filters input {
+  margin-right: 5px;
+}
+
+.sep {
+  margin: 0 10px;
+  color: #555;
+}
+
+
+.throw-marker::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+}
+
+/* L’overlay svg (déjà chez toi, garde-le) */
+#map-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Point de lancement (persistant, un par panel ouvert) */
+.throw-marker {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 25;
+  pointer-events: none;
+  box-shadow: 0 0 10px currentColor;
+}
+
+/* Couleur du point throw selon type */
+.throw-marker.smoke   { color: #6fa8ff; background: #6fa8ff; }
+.throw-marker.flash   { color: #ffd966; background: #ffd966; }
+.throw-marker.molotov { color: #ff8c42; background: #ff8c42; }
+
+/* Petit numéro sur le point throw */
+.throw-label {
+  position: absolute;
+  left: 13px;
+  top: -3px;
+  font-size: 10px;     /* plus petit */
+  font-weight: 700;
+  color: white;
+  background: rgba(0,0,0,0.75);
+  padding: 1px 5px;    /* plus petit */
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+/* Optionnel : numéro dans le titre du panel */
+.badge {
+  display: inline-block;
+  min-width: 22px;
+  text-align: center;
+  padding: 2px 6px;
+  margin-right: 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.12);
+  font-weight: 700;
+}
+
+#lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+  padding: 30px;
+}
+
+#lightbox.hidden {
+  display: none;
+}
+
+#lightbox-img {
+  max-width: 95vw;
+  max-height: 95vh;
+  border-radius: 10px;
+}
+
+/* petit bonus : curseur sur les images cliquables */
+.panel img {
+  cursor: zoom-in;
+}
