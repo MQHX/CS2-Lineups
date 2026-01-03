@@ -77,6 +77,8 @@
       "name": "Bank",
       "type": "smoke",
       "side": "T",
+      "target":"bank_smoke",
+      "variant":"Long",
       "description": "Jumpthrow",
       "x": 44.3,
       "y": 10.8,
@@ -92,6 +94,8 @@
       "type": "smoke",
       "side": "T",
       "description": "Jumpthrow",
+      "target":"trash_smoke",
+      "variant":"Banana",
       "x": 53.9,
       "y": 13.8,
       "throw": { "x": 46.5, "y": 48.4 },
@@ -106,6 +110,8 @@
       "type": "molotov",
       "side": "T",
       "description": "W Jumpthrow",
+      "target":"truck_molly",
+      "variant":"Banana",
       "x": 53.5,
       "y": 21.4,
       "throw": { "x": 46.5, "y": 48.4 },
@@ -141,8 +147,58 @@
         "stand": "images/overpass/a_flash.png",
         "aim": "images/overpass/a_flash_2.png"
       }
+    },
+   {
+      "id": "trash_smoke_2",
+      "type": "smoke",
+      "side": "T",
+      "name": "Trash",
+      "target": "trash_smoke",
+      "variant": "Long",
+      "description": "Jumpthrow",
+      "x": 53.9,
+      "y": 13.8,
+      "throw": { "x": 24.8, "y": 33.1 },
+      "images": {
+        "stand": "images/overpass/a_exec_2.png",
+        "aim": "images/overpass/trash_smoke_2.png"
+      }
+    },
+  {
+      "id": "bank_smoke_2",
+      "type": "smoke",
+      "side": "T",
+      "name": "Bank",
+      "target": "bank_smoke",
+      "variant": "Long",
+      "description": "Left click",
+      "x": 44.3,
+      "y": 10.8,
+      "throw": { "x": 24.8, "y": 33.1 },
+      "images": {
+        "stand": "images/overpass/a_exec_2.png",
+        "aim": "images/overpass/bank_smoke_2.png"
+      }
+    },
+   {
+      "id": "truck_molly_2",
+      "type": "molotov",
+      "side": "T",
+      "name": "Truck",
+      "target": "truck_molly",
+      "variant": "Long",
+      "description": "Walk + Jumpthrow",
+      "x": 53.5,
+      "y": 21.4,
+      "throw": { "x": 24.8, "y": 33.1 },
+      "images": {
+        "stand": "images/overpass/a_exec_2.png",
+        "aim": "images/overpass/truck_molly_2.png"
+      }
     }
   ],
+
+
   "executes": [
     {
       "id": "A_exec_from_banana",
