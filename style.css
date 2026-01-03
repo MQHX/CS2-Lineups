@@ -332,3 +332,22 @@ button {
     display: none;
   }
 }
+@media (max-width: 900px) {
+  /* Cache les panneaux tant qu'ils sont vides */
+  #panels-left:empty,
+  #panels-right:empty {
+    display: none !important;
+  }
+
+  /* Quand ils ne sont pas vides, on les affiche */
+  #panels-left,
+  #panels-right {
+    display: block;
+  }
+}
+@media (max-width: 900px) {
+  /* la map garde de la place en bas quand les panneaux sont ouverts */
+  body {
+    padding-bottom: 45vh; /* ajuste si besoin */
+  }
+}
