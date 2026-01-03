@@ -1,0 +1,153 @@
+{
+  "lineups": [
+    {
+      "id": "monster_smoke_from_ct",
+      "type": "smoke",
+      "side": "CT",
+      "name": "Monster",
+      "target": "monster_smoke",
+      "variant": "CT Spawn",
+      "description": "Jumpthrow",
+      "x": 80.9,
+      "y": 44.6,
+      "throw": { "x": 50.9, "y": 13.8 },
+      "images": {
+        "stand": "images/overpass/monster_from_ct_smoke_1.png",
+        "aim": "images/overpass/monster_from_ct_smoke_2.png"
+      }
+    },
+    {
+      "id": "monster_molly",
+      "name": "Monster",
+      "type": "molotov",
+      "side": "CT",
+      "description": "Left click + Running",
+      "x": 80.9,
+      "y": 39.7,
+      "throw": { "x": 70.9, "y": 26.5 },
+      "images": {
+        "stand": "images/overpass/monster_molly_1.png",
+        "aim": "images/overpass/monster_molly_2.png"
+      }
+    },
+    {
+      "id": "short_smoke_from_ct",
+      "name": "Short",
+      "type": "smoke",
+      "side": "CT",
+      "description": "Jumpthrow",
+      "x": 70,
+      "y": 51,
+      "throw": { "x": 50.9, "y": 13.8 },
+      "images": {
+        "stand": "images/overpass/monster_from_ct_smoke_1.png",
+        "aim": "images/overpass/short_from_ct_smoke_2.png"
+      }
+    },
+    {
+      "id": "bsite_smoke",
+      "name": "B Site hold",
+      "type": "smoke",
+      "side": "CT",
+      "description": "Left click",
+      "x": 75.1,
+      "y": 28.3,
+      "throw": { "x": 75.8, "y": 23.2 },
+      "images": {
+        "stand": "images/overpass/BSite_hold_smoke_1.png",
+        "aim": "images/overpass/BSite_hold_smoke_2.png"
+      }
+    },
+    {
+      "id": "short_molly",
+      "name": "Short",
+      "type": "molotov",
+      "side": "CT",
+      "description": "Left and Right click + Running",
+      "x": 68,
+      "y": 51,
+      "throw": { "x": 53.5, "y": 29.9 },
+      "images": {
+        "stand": "images/overpass/short_molly_1.png",
+        "aim": "images/overpass/short_molly_2.png"
+      }
+    },
+    {
+      "id": "bank_smoke",
+      "name": "Bank",
+      "type": "smoke",
+      "side": "T",
+      "description": "Jumpthrow",
+      "x": 44.3,
+      "y": 10.8,
+      "throw": { "x": 46.5, "y": 48.4 },
+      "images": {
+        "stand": "images/overpass/a_exec.png",
+        "aim": "images/overpass/bank_smoke.png"
+      }
+    },
+    {
+      "id": "trash_smoke",
+      "name": "Trash",
+      "type": "smoke",
+      "side": "T",
+      "description": "Jumpthrow",
+      "x": 53.9,
+      "y": 13.8,
+      "throw": { "x": 46.5, "y": 48.4 },
+      "images": {
+        "stand": "images/overpass/a_exec.png",
+        "aim": "images/overpass/trash_smoke.png"
+      }
+    },
+    {
+      "id": "truck_molly",
+      "name": "Truck",
+      "type": "molotov",
+      "side": "T",
+      "description": "W Jumpthrow",
+      "x": 53.5,
+      "y": 21.4,
+      "throw": { "x": 46.5, "y": 48.4 },
+      "images": {
+        "stand": "images/overpass/a_exec.png",
+        "aim": "images/overpass/truck_molly.png"
+      }
+    },
+    {
+      "id": "a_flash_1",
+      "name": "Site first",
+      "type": "flash",
+      "side": "T",
+      "description": "Jumpthrow",
+      "x": 49.0,
+      "y": 23.5,
+      "throw": { "x": 47.8, "y": 44.4 },
+      "images": {
+        "stand": "images/overpass/a_flash.png",
+        "aim": "images/overpass/a_flash_1.png"
+      }
+    },
+    {
+      "id": "a_flash_2",
+      "name": "Site second",
+      "type": "flash",
+      "side": "T",
+      "description": "Jumpthrow",
+      "x": 51,
+      "y": 24.7,
+      "throw": { "x": 47.8, "y": 44.4 },
+      "images": {
+        "stand": "images/overpass/a_flash.png",
+        "aim": "images/overpass/a_flash_2.png"
+      }
+    }
+  ],
+  "executes": [
+    {
+      "id": "A_exec_from_banana",
+      "name": "A Execute (banana)",
+      "items": ["bank_smoke", "trash_smoke", "truck_molly"]
+    }
+  ]
+}

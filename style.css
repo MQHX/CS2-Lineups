@@ -1,0 +1,904 @@
+body {
+  margin: 0;
+  background: #111;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 0 420px; /* desktop */
+}
+
+
+#map-container {
+  position: relative;
+  width: min(800px, 100%);
+  margin: 0 auto;
+}
+#map {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.marker {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  transform: translate(-50%, -50%) rotate(45deg);
+  cursor: pointer;
+  color: inherit;
+}
+
+/* 2 traits couleur, avec outline via box-shadow (net, pas flou) */
+.marker::before,
+.marker::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: currentColor;
+
+  /* outline noire nette */
+  box-shadow:
+    0 0 0 1px #000;
+  border-radius: 2px;
+}
+
+/* vertical */
+.marker::before {
+  width: 1.2px;
+  height: 16px;
+}
+
+/* horizontal */
+.marker::after {
+  width: 16px;
+  height: 1.2px;
+}
+
+.marker:hover {
+  filter: brightness(1.25);
+}
+
+
+.smoke {
+  color: #6fa8ff; /* bleu clair */
+}
+
+.flash {
+  color: #ffd966; /* jaune doux */
+}
+
+.molotov {
+  color: #ff8c42; /* orange */
+}
+
+#popup {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 380px;        /* largeur ajustable */
+  height: 100vh;       /* pleine hauteur */
+  background: #1a1a1a;
+  padding: 20px;
+  border-left: 2px solid #333;
+  overflow-y: auto;    /* scroll si contenu long */
+  z-index: 1000;
+}
+
+.hidden {
+  display: none;
+}
+
+button {
+  margin-top: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+#coords {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #aaa;
+}
+
+#popup-image {
+  width: 100%;
+  margin-top: 12px;
+  border-radius: 8px;
+}
+
+/* Panneaux à gauche et à droite */
+#panels-left, #panels-right {
+  position: fixed;
+  top: 0;
+  width: 400px;
+  height: 100vh;
+  overflow-y: auto;
+  background: #111;
+  z-index: 1000;
+}
+
+#panels-left {
+  left: 0;
+  border-right: 2px solid #333;
+}
+
+#panels-right {
+  right: 0;
+  border-left: 2px solid #333;
+}
+
+/* Pour que la map ne soit pas cachée derrière les panneaux */
+#map-container {
+  position: relative;
+  width: 800px;
+  margin: 0 auto;
+}
+
+/* Optionnel : si tu veux plus de place, tu peux réduire la map ou les panneaux */
+
+.panel {
+  background: #1e1e1e;
+  padding: 15px;
+  margin: 10px;
+  border-radius: 10px;
+}
+
+.panel h2 {
+  margin-top: 0;
+}
+
+.panel img {
+  width: 100%;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+.close-btn {
+  float: right;
+  cursor: pointer;
+  color: #aaa;
+}
+.close-btn:hover {
+  color: white;
+}
+
+.panel h4 {
+  margin: 12px 0 5px;
+  font-size: 14px;
+  color: #bbb;
+  text-transform: uppercase;
+}
+
+#filters {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+#filters label {
+  margin: 0 10px;
+  font-size: 14px;
+  color: #ccc;
+}
+
+#filters input {
+  margin-right: 5px;
+}
+
+.sep {
+  margin: 0 10px;
+  color: #555;
+}
+
+
+.throw-marker::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+}
+
+/* L’overlay svg (déjà chez toi, garde-le) */
+#map-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Point de lancement (persistant, un par panel ouvert) */
+.throw-marker {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 25;
+  pointer-events: none;
+  box-shadow: 0 0 10px currentColor;
+}
+
+/* Couleur du point throw selon type */
+.throw-marker.smoke   { color: #6fa8ff; background: #6fa8ff; }
+.throw-marker.flash   { color: #ffd966; background: #ffd966; }
+.throw-marker.molotov { color: #ff8c42; background: #ff8c42; }
+
+/* Petit numéro sur le point throw */
+.throw-label {
+  position: absolute;
+  left: 13px;
+  top: -3px;
+  font-size: 10px;     /* plus petit */
+  font-weight: 700;
+  color: white;
+  background: rgba(0,0,0,0.75);
+  padding: 1px 5px;    /* plus petit */
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+/* Optionnel : numéro dans le titre du panel */
+.badge {
+  display: inline-block;
+  min-width: 22px;
+  text-align: center;
+  padding: 2px 6px;
+  margin-right: 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.12);
+  font-weight: 700;
+}
+
+#lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+  padding: 30px;
+}
+
+#lightbox.hidden {
+  display: none;
+}
+
+#lightbox-img {
+  max-width: 95vw;
+  max-height: 95vh;
+  border-radius: 10px;
+}
+
+/* petit bonus : curseur sur les images cliquables */
+.panel img {
+  cursor: zoom-in;
+}
+
+@media (max-width: 900px) {
+  body {
+    padding: 12px; /* plus de paddings énormes */
+  }
+
+  /* Les panneaux deviennent des drawers en bas */
+  #panels-left, #panels-right {
+    position: fixed;
+    left: 0;
+    right: 0;
+    width: auto;
+    height: 42vh;          /* hauteur du drawer */
+    top: auto;
+    bottom: 0;
+    border-left: none;
+    border-right: none;
+    border-top: 2px solid #333;
+    background: #111;
+    z-index: 1000;
+  }
+
+  /* On empile : smokes + autres */
+  #panels-left {
+    bottom: 42vh;          /* drawer au-dessus */
+    height: 30vh;
+  }
+
+  #panels-right {
+    bottom: 0;
+    height: 42vh;
+  }
+
+  /* Map prend toute la largeur */
+  #map-container {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Images dans panels */
+  .panel img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Filtre plus lisible */
+  #filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+
+  .sep {
+    display: none;
+  }
+}
+@media (max-width: 900px) {
+  /* Cache les panneaux tant qu'ils sont vides */
+  #panels-left:empty,
+  #panels-right:empty {
+    display: none !important;
+  }
+
+  /* Quand ils ne sont pas vides, on les affiche */
+  #panels-left,
+  #panels-right {
+    display: block;
+  }
+}
+@media (max-width: 900px) {
+  /* la map garde de la place en bas quand les panneaux sont ouverts */
+  body {
+    padding-bottom: 45vh; /* ajuste si besoin */
+  }
+}
+
+/* Description des lineups */
+.panel p {
+  color: #4cff4c;              /* vert bien visible */
+  font-weight: 600;
+  background: rgba(76, 255, 76, 0.08); /* léger fond vert */
+  padding: 8px 10px;
+  border-left: 4px solid #4cff4c;
+  border-radius: 6px;
+  margin: 10px 0 14px;
+}
+
+#chooser {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 4000;
+  padding: 16px;
+}
+#chooser.hidden { display: none; }
+
+#chooser-box {
+  width: min(420px, 95vw);
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 14px;
+  text-align: left;
+}
+
+#chooser-title {
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+#chooser-list button {
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  margin: 6px 0;
+  border-radius: 10px;
+  border: 1px solid #333;
+  background: #151515;
+  color: white;
+  cursor: pointer;
+}
+#chooser-list button:hover {
+  filter: brightness(1.15);
+}
+
+#chooser-close {
+  width: 100%;
+  margin-top: 8px;
+}
+
+#chooser {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999; /* PLUS HAUT que panels / lightbox */
+}
+#chooser.hidden {
+  display: none;
+}
+
+.map-grid{
+  display:flex;
+  gap:12px;
+  justify-content:center;
+  flex-wrap:wrap;
+  padding:20px;
+}
+
+.map-card{
+  width:220px;
+  height:120px;
+  background:#1e1e1e;
+  border:1px solid #333;
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
+  color:white;
+}
+
+.map-card:hover{
+  filter:brightness(1.15);
+}
+
+.map-name{
+  font-weight:700;
+  font-size:18px;
+}
+
+#back-btn {
+  position: fixed;              /* ⬅️ clé du fix */
+  top: 12px;
+  left: 400px;                  /* largeur exacte du panneau gauche */
+  z-index: 2000;
+
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: white;
+  text-decoration: none;
+  font-weight: 700;
+  backdrop-filter: blur(4px);
+}
+
+#back-btn:hover {
+  filter: brightness(1.15);
+}
+
+
+@media (min-width: 901px) {
+  #back-btn {
+    left: 420px; /* 400 + petit gap */
+  }
+}
+
+@media (max-width: 900px) {
+  #back-btn {
+    left: 12px;
+    top: 12px;
+  }
+}
+
+#executes {
+  position: fixed;
+  left: calc(400px + 8px); /* 👈 décale légèrement à droite du panneau */
+  bottom: 12px;
+  z-index: 2500;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  max-width: 520px;
+}
+
+.exec-btn {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+
+.exec-btn:hover {
+  filter: brightness(1.15);
+}
+
+@media (max-width: 900px) {
+  #executes {
+    left: 12px;     /* mobile : plus de panneau gauche fixe */
+    right: 12px;
+    max-width: none;
+  }
+}
+
+/* Boutons execute (par défaut) */
+.exec-btn {
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+
+.exec-btn:hover {
+  filter: brightness(1.15);
+}
+
+/* ===== CLEAR (différent, plus discret) ===== */
+.exec-clear {
+  padding: 5px 9px;              /* plus petit */
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.65;
+  border-style: dashed;
+  background: rgba(255,255,255,0.05);
+}
+
+.exec-clear:hover {
+  opacity: 1;
+  background: rgba(255,80,80,0.15); /* petit warning visuel */
+  border-color: rgba(255,80,80,0.6);
+}
+
+.aim-list {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+  padding-left: 14px;
+}
+
+/* ligne de connexion */
+.aim-list::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  background: rgba(255,255,255,0.12);
+  border-radius: 2px;
+}
+
+.lineup-item {
+  background: #151515;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 10px;
+  position: relative;
+}
+
+/* petit point sur la ligne */
+.lineup-item::before {
+  content: "";
+  position: absolute;
+  left: -14px;
+  top: 18px;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.25);
+}
+
+.lineup-item-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.lineup-item-title {
+  flex: 1;
+}
+
+.lineup-name {
+  font-weight: 800;
+}
+
+.lineup-desc {
+  margin-top: 4px;
+  color: #4cff4c;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.item-close {
+  background: transparent;
+  border: 0;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+.item-close:hover { color: white; }
+
+.spot-img {
+  pointer-events: auto;
+  cursor: zoom-in;
+}
+/* ===== Editor ===== */
+.editor-top{
+  display:flex; gap:10px; flex-wrap:wrap;
+  align-items:center; justify-content:center;
+  padding:10px 12px;
+}
+
+.editor-layout{
+  display:grid;
+  grid-template-columns: 420px 1fr;
+  gap:14px;
+  padding:12px;
+  align-items:start;
+}
+
+.editor-left, .editor-right{
+  background:#141414;
+  border:1px solid #2a2a2a;
+  border-radius:14px;
+  padding:12px;
+}
+
+.editor-actions{ display:flex; gap:8px; flex-wrap:wrap; margin:10px 0; }
+.editor-input{
+  width:100%;
+  padding:8px 10px;
+  border-radius:10px;
+  border:1px solid #333;
+  background:#0f0f0f;
+  color:white;
+}
+.editor-btn{
+  padding:8px 10px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.15);
+  background:rgba(255,255,255,0.08);
+  color:white;
+  font-weight:700;
+  cursor:pointer;
+}
+.editor-btn:hover{ filter:brightness(1.15); }
+.editor-btn-weak{ opacity:0.7; font-weight:600; }
+.editor-btn-danger{ background: rgba(255,80,80,0.12); border-color: rgba(255,80,80,0.35); }
+
+.editor-status{ color:#4cff4c; font-weight:700; }
+.editor-hint{ color:#aaa; font-size:13px; }
+
+.editor-list{ display:flex; flex-direction:column; gap:8px; }
+.editor-row{
+  background:#0f0f0f;
+  border:1px solid #2a2a2a;
+  padding:10px;
+  border-radius:12px;
+  cursor:pointer;
+}
+.editor-row:hover{ filter:brightness(1.08); }
+.editor-row.active{ outline:2px solid rgba(111,168,255,0.45); }
+
+.editor-row-title{ font-weight:800; }
+.editor-row-sub{ color:#aaa; font-size:12px; margin-top:3px; }
+
+.editor-grid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:10px;
+}
+.editor-grid label{ display:flex; flex-direction:column; gap:6px; color:#ccc; font-size:12px; }
+
+.editor-mapbox{
+  position:relative;
+  width: min(900px, 100%);
+  margin: 8px auto 0;
+  border-radius:14px;
+  overflow:hidden;
+  border:1px solid #2a2a2a;
+}
+#ed-mapimg{ width:100%; display:block; }
+
+/* ===== Editor pick markers: CROSS (like viewer markers) ===== */
+.ed-dot{
+  position:absolute;
+  width:16px;
+  height:16px;
+  transform: translate(-50%, -50%) rotate(45deg);
+  pointer-events:none;
+  color: currentColor; /* la couleur vient de ed-dot-target/throw */
+}
+
+/* 2 traits + outline noir net */
+.ed-dot::before,
+.ed-dot::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform: translate(-50%, -50%);
+  background: currentColor;
+  box-shadow: 0 0 0 1px #000;
+  border-radius: 2px;
+}
+
+/* vertical */
+.ed-dot::before{
+  width:1.2px;
+  height:16px;
+}
+
+/* horizontal */
+.ed-dot::after{
+  width:16px;
+  height:1.2px;
+}
+
+/* couleurs */
+.ed-dot-target{ color:#6fa8ff; } /* Target = bleu */
+.ed-dot-throw { color:#4cff4c; } /* Spot  = vert (ton "throw") */
+
+.hidden{ display:none; }
+
+
+@media (max-width: 950px){
+  .editor-layout{ grid-template-columns: 1fr; }
+}
+
+
+/* ===== Editor docs (field guide) ===== */
+.editor-docs{
+  width: min(980px, calc(100% - 24px));
+  margin: 10px auto 14px;
+  background: #141414;
+  border: 1px solid #2a2a2a;
+  border-radius: 14px;
+  text-align: left;
+  overflow: hidden;
+}
+.editor-docs summary{
+  cursor: pointer;
+  padding: 10px 12px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.9);
+  background: rgba(255,255,255,0.03);
+}
+.editor-docs summary:hover{ filter: brightness(1.12); }
+.editor-docs-body{ padding: 12px; }
+.doc-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.doc-item{
+  background: #0f0f0f;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+.doc-item h3{
+  margin: 0 0 6px;
+  font-size: 13px;
+}
+.doc-item p{
+  margin: 6px 0;
+  color: rgba(255,255,255,0.78);
+  font-size: 13px;
+  line-height: 1.35;
+}
+.doc-ex code{
+  background: rgba(255,255,255,0.06);
+  padding: 2px 6px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.10);
+}
+.doc-note{
+  color: rgba(255,255,255,0.62);
+  font-size: 12px;
+}
+.doc-wide{ grid-column: 1 / -1; }
+.doc-item pre{
+  margin: 8px 0 0;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04);
+  overflow: auto;
+}
+.doc-item pre code{
+  font-size: 12px;
+  color: rgba(255,255,255,0.88);
+}
+@media (max-width: 950px){
+  .doc-grid{ grid-template-columns: 1fr; }
+}
+/* ===== Pick mode (Target / Spot) ===== */
+
+.pick-box {
+  margin-top: 8px;
+  text-align: center;
+}
+
+.pick-modes {
+  display: inline-flex;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.pick-btn {
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 999px;
+  cursor: pointer;
+
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.7);
+}
+
+.pick-btn:hover {
+  filter: brightness(1.15);
+}
+
+.pick-btn.active {
+  color: white;
+  background: rgba(111,168,255,0.25);
+  border-color: rgba(111,168,255,0.6);
+}
+
+.pick-help {
+  font-size: 12px;
+  color: #aaa;
+  line-height: 1.4;
+}
+/* ===== Pick buttons colored like markers ===== */
+
+/* Couleurs de base */
+.pick-btn.target {
+  color: #6fa8ff; /* bleu target */
+}
+
+.pick-btn.spot {
+  color: #4cff4c; /* vert spot */
+}
+
+/* Hover */
+.pick-btn.target:hover {
+  background: rgba(111,168,255,0.12);
+  border-color: rgba(111,168,255,0.4);
+}
+
+.pick-btn.spot:hover {
+  background: rgba(76,255,76,0.12);
+  border-color: rgba(76,255,76,0.4);
+}
+
+/* Bouton actif */
+.pick-btn.active.target {
+  color: #6fa8ff;
+  background: rgba(111,168,255,0.25);
+  border-color: rgba(111,168,255,0.6);
+}
+
+.pick-btn.active.spot {
+  color: #4cff4c;
+  background: rgba(76,255,76,0.25);
+  border-color: rgba(76,255,76,0.6);
+}
+

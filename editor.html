@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CS2 Lineups – Editor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>CS2 Lineups – Editor</h1>
+
+<div class="editor-top">
+  <a class="editor-link" href="index.html">← Back</a>
+
+  <label class="editor-label">
+    Map:
+    <select id="ed-map">
+      <option value="overpass">overpass</option>
+      <option value="mirage">mirage</option>
+      <option value="inferno">inferno</option>
+    </select>
+  </label>
+
+  <button id="import-json">Import JSON</button>
+  <button id="export-json">Export JSON</button>
+</div>
+
+<p class="editor-help">
+  Create your lineups and executes, then export the JSON and send it to the site owner.
+</p>
+
+<details class="editor-docs">
+  <summary>Field guide (what each setting does) + examples</summary>
+
+  <div class="editor-docs-body">
+    <div class="doc-grid">
+      <div class="doc-item">
+        <h3>ID</h3>
+        <p><b>Unique identifier</b> for a lineup. This is what you copy/paste into executes.</p>
+        <p class="doc-ex">Example: <code>bank_smoke</code> or <code>monster_smoke_from_ct</code></p>
+        <p class="doc-note">Tip: use lowercase + underscores. Don’t reuse the same ID on the same map.</p>
+      </div>
+
+      <div class="doc-item">
+        <h3>Type</h3>
+        <p>The grenade type used for filters and marker color.</p>
+        <p class="doc-ex">Values: <code>smoke</code>, <code>flash</code>, <code>molotov</code></p>
+      </div>
+
+      <div class="doc-item">
+        <h3>Side</h3>
+        <p>Which team throws it. Used for filters and for grouping keys (optional).</p>
+        <p class="doc-ex">Values: <code>T</code> or <code>CT</code></p>
+      </div>
+
+
+      <div class="doc-item">
+        <h3>Name</h3>
+        <p>The lineup name shown inside the panel item (each aim step).</p>
+        <p class="doc-ex">Example: <code>CT Spawn</code>, <code>One-way</code>, <code>Fast</code></p>
+      </div>
+
+      <div class="doc-item">
+        <h3>Target group (optional)</h3>
+        <p>Use this when <b>multiple lineups land on the same target</b> and you want a chooser popup instead of multiple markers.</p>
+        <p class="doc-ex">Example: <code>monster_smoke</code> for 2–3 variants landing on “Monster”.</p>
+      </div>
+
+      <div class="doc-item">
+        <h3>Variant (chooser label)</h3>
+        <p>Label used in the <b>variant chooser</b> when multiple lineups share the same <b>Target group</b>.</p>
+        <p class="doc-ex">Example: <code>CT Spawn</code>, <code>Heaven</code>, <code>Safe</code></p>
+        <p class="doc-note">If you don’t use Target group, Variant can be left empty.</p>
+      </div>
+
+      <div class="doc-item doc-wide">
+        <h3>Execute items (how to separate)</h3>
+        <p>Executes contain a list of lineup <b>IDs</b>. Separate IDs with commas.</p>
+        <p class="doc-ex"><code>bank_smoke, trash_smoke, truck_molly</code></p>
+        <p class="doc-note">These must match the lineup <b>ID</b> exactly.</p>
+      </div>
+
+    </div>
+  </div>
+</details>
+
+  <span id="ed-status" class="editor-status"></span>
+<div class="editor-layout">
+  <div class="editor-left">
+    <h2>Lineups</h2>
+
+    <div class="editor-actions">
+      <button id="ed-add" class="editor-btn">+ Add lineup</button>
+      <input id="ed-search" class="editor-input" placeholder="Search (spot/name/variant/id)…">
+    </div>
+
+    <div id="ed-list" class="editor-list"></div>
+
+    <h2 style="margin-top:18px;">Executes</h2>
+    <div class="editor-actions">
+      <button id="ex-add" class="editor-btn">+ Add execute</button>
+    </div>
+    <div id="ex-list" class="editor-list"></div>
+  </div>
+
+  <div class="editor-right">
+    <h2>Map picker</h2>
+    <div class="pick-box">
+  <div class="pick-modes">
+  <button id="pick-target" class="pick-btn target active">Target</button>
+  <button id="pick-spot" class="pick-btn spot">Spot</button>
+</div>
+
+
+  <div class="pick-help">
+    <strong>Target</strong> → Where the grenade lands / explodes<br>
+    <strong>Spot</strong> → Where the player stands and throws from
+  </div>
+</div>
+
+
+    <div id="ed-mapbox" class="editor-mapbox">
+      <img id="ed-mapimg" alt="map">
+      <div id="ed-dot-target" class="ed-dot ed-dot-target hidden"></div>
+      <div id="ed-dot-throw" class="ed-dot ed-dot-throw hidden"></div>
+    </div>
+
+    <h2>Selected lineup</h2>
+    <div id="ed-form" class="editor-form">
+      <p class="editor-hint">Select a lineup or click “Add lineup”.</p>
+    </div>
+  </div>
+</div>
+
+<script src="editor.js"></script>
+</body>
+</html>
