@@ -10,19 +10,27 @@
 <body>
   <h1 id="page-title">CS2 Lineups</h1>
 
-  <div id="filters">
-    <label><input type="checkbox" value="smoke" checked> Smoke</label>
-    <label><input type="checkbox" value="flash" checked> Flash</label>
-    <label><input type="checkbox" value="molotov" checked> Molotov</label>
+  <!-- Filters (clean pills) -->
+  <div id="filters" class="pillbar" aria-label="Filters">
+    <div class="pill-group" data-group="type" aria-label="Grenade type">
+      <button class="pill active" type="button" data-value="smoke">Smoke</button>
+      <button class="pill active" type="button" data-value="flash">Flash</button>
+      <button class="pill active" type="button" data-value="molotov">Molotov</button>
+    </div>
 
-    <span class="sep">|</span>
+    <div class="pill-sep" aria-hidden="true"></div>
 
-    <label><input type="checkbox" value="T" checked> T</label>
-    <label><input type="checkbox" value="CT" checked> CT</label>
+    <div class="pill-group" data-group="side" aria-label="Side">
+      <button class="pill active" type="button" data-value="T">T</button>
+      <button class="pill active" type="button" data-value="CT">CT</button>
+    </div>
   </div>
 
-  <!-- Boutons Executes (remplis par JS si executes existe) -->
-  <div id="executes"></div>
+  <!-- Executes container (grid + clear bottom-left) -->
+  <div id="executes" aria-label="Executes">
+    <div id="exec-grid"></div>
+    <button id="exec-clear" class="exec-btn exec-clear" type="button">✕ Clear</button>
+  </div>
 
   <div id="map-container">
     <a id="back-btn" href="index.html" aria-label="Retour au choix des maps">← Maps</a>
@@ -30,9 +38,9 @@
     <svg id="map-overlay"></svg>
   </div>
 
-  <p id="coords">Click on the map to get coordinates</p>
+  <p id="coords">Clique sur la map pour obtenir les coordonnées</p>
 
-  <!-- Panneaux latéraux -->
+  <!-- Side panels -->
   <div id="panels-left"></div>
   <div id="panels-right"></div>
 
@@ -41,16 +49,20 @@
     <img id="lightbox-img" alt="">
   </div>
 
-  <!-- Chooser variantes (quand plusieurs lineups sur le même target) -->
-  <div id="chooser" class="hidden" aria-hidden="true">
-    <div id="chooser-box" role="dialog" aria-modal="true">
-      <div id="chooser-title"></div>
-      <div id="chooser-list"></div>
-      <button id="chooser-close" type="button">Annuler</button>
+  <!-- Universal modal (used for all popups: groups, chooser, confirms) -->
+  <div id="ui-modal" class="ui-modal hidden" aria-hidden="true">
+    <div class="ui-modal__backdrop" data-close="1"></div>
+    <div class="ui-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="ui-modal-title">
+      <div class="ui-modal__header">
+        <div id="ui-modal-title" class="ui-modal__title"></div>
+        <button id="ui-modal-x" class="icon-btn" type="button" aria-label="Close">✕</button>
+      </div>
+      <div id="ui-modal-body" class="ui-modal__body"></div>
+      <div id="ui-modal-actions" class="ui-modal__actions"></div>
     </div>
   </div>
 
-  <!-- Loader qui charge data/<map>.js puis script.js -->
+  <!-- Loader loads data/<map>.js then script.js -->
   <script src="loader.js"></script>
 </body>
 </html>

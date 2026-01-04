@@ -78,7 +78,7 @@
       "type": "smoke",
       "side": "T",
       "target":"bank_smoke",
-      "variant":"Long",
+      "variant":"Banana",
       "description": "Jumpthrow",
       "x": 44.3,
       "y": 10.8,
@@ -122,7 +122,7 @@
     },
     {
       "id": "a_flash_1",
-      "name": "Site first",
+      "name": "A site first",
       "type": "flash",
       "side": "T",
       "description": "Jumpthrow",
@@ -136,7 +136,7 @@
     },
     {
       "id": "a_flash_2",
-      "name": "Site second",
+      "name": "A site second",
       "type": "flash",
       "side": "T",
       "description": "Jumpthrow",
@@ -195,15 +195,153 @@
         "stand": "images/overpass/a_exec_2.png",
         "aim": "images/overpass/truck_molly_2.png"
       }
+    },
+     {
+      "id": "heaven_smoke",
+      "type": "smoke",
+      "side": "T",
+      "name": "Heaven",
+      "target": "",
+      "variant": "",
+      "description": "Jumpthrow",
+      "x": 57.8,
+      "y": 22.4,
+      "throw": { "x": 61.3, "y": 44.5 },
+      "images": {
+        "stand": "images/overpass/b_exec.png",
+        "aim": "images/overpass/heaven_smoke.png"
+      }
+    },
+     {
+      "id": "toxic_molly",
+      "type": "molotov",
+      "side": "T",
+      "name": "Toxic",
+      "target": "",
+      "variant": "",
+      "description": "Jumpthrow",
+      "x": 75.0,
+      "y": 24.1,
+      "throw": { "x": 61.3, "y": 44.5 },
+      "images": {
+        "stand": "images/overpass/b_exec.png",
+        "aim": "images/overpass/toxic_molly.png"
+      }
+    },
+  {
+      "id": "abc_smoke",
+      "type": "smoke",
+      "side": "T",
+      "name": "ABC",
+      "target": "",
+      "variant": "",
+      "description": "Left click",
+      "x": 57.5,
+      "y": 35.6,
+      "throw": { "x": 61.3, "y": 44.5 },
+      "images": {
+        "stand": "images/overpass/b_exec.png",
+        "aim": "images/overpass/abc_smoke.png"
+      }
+    },
+  {
+      "id": "toilet_smoke",
+      "type": "smoke",
+      "side": "T",
+      "name": "Toilet",
+      "target": "",
+      "variant": "",
+      "description": "Crouch + Jumpthrow",
+      "x": 40.3,
+      "y": 50.2,
+      "throw": { "x": 74.5, "y": 78 },
+      "images": {
+        "stand": "images/overpass/toilet_smoke_1.png",
+        "aim": "images/overpass/toilet_smoke_2.png"
+      }
+    },
+  {
+      "id": "b_flash_1",
+      "type": "flash",
+      "side": "T",
+      "name": "B site first",
+      "target": "",
+      "variant": "",
+      "description": "Left click",
+      "x": 84.0,
+      "y": 35.4,
+      "throw": { "x": 85.6, "y": 52.2 },
+      "images": {
+        "stand": "images/overpass/b_flash.png",
+        "aim": "images/overpass/b_flash_1.png"
+      }
+    },
+  {
+      "id": "b_flash_2",
+      "type": "flash",
+      "side": "T",
+      "name": "B site second",
+      "target": "",
+      "variant": "",
+      "description": "Left click",
+      "x": 76.1,
+      "y": 36.0,
+      "throw": { "x": 85.6, "y": 52.2 },
+      "images": {
+        "stand": "images/overpass/b_flash.png",
+        "aim": "images/overpass/b_flash_2.png"
+      }
+    },
+  {
+      "id": "fountain_smoke",
+      "type": "smoke",
+      "side": "CT",
+      "name": "Fountain",
+      "target": "",
+      "variant": "",
+      "description": "Jumpthrow",
+      "x": 55.0,
+      "y": 74.9,
+      "throw": { "x": 45.5, "y": 28.7 },
+      "images": {
+        "stand": "images/overpass/fountain_smoke.png",
+        "aim": "images/overpass/fountain_smoke_2.png"
+      }
+    },
+  {
+      "id": "playground_molly",
+      "type": "molotov",
+      "side": "CT",
+      "name": "Playground",
+      "target": "",
+      "variant": "",
+      "description": "Running (until second divider) + Jumpthrow",
+      "x": 50.9,
+      "y": 81.3,
+      "throw": { "x": 49.0, "y": 44.2 },
+      "images": {
+        "stand": "images/overpass/playground_molly.png",
+        "aim": "images/overpass/playground_molly_2.png"
+      }
     }
   ],
 
 
   "executes": [
     {
-      "id": "A_exec_from_banana",
+      "id": "A_exec_banana",
       "name": "A Execute (banana)",
       "items": ["bank_smoke", "trash_smoke", "truck_molly"]
+    },
+  {
+      "id": "A_exec_long",
+      "name": "A Execute (long)",
+      "items": ["bank_smoke_2", "trash_smoke_2", "truck_molly_2"]
+    },
+  {
+      "id": "B_exec_short",
+      "name": "B Execute (short)",
+      "items": ["heaven_smoke", "abc_smoke", "toxic_molly"]
     }
   ]
 }

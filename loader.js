@@ -9,30 +9,57 @@
   const mapImg = document.getElementById("map");
   if (mapImg) mapImg.src = `maps/${mapName}.png`;
 
-  // 1) Essaie d'abord la version locale (pour toi, en test)
+  const baseUrl = `data/${mapName}.json`;
+
+  // Local edits (saved by editor) — we MERGE them on top of the base JSON
   const localKey = `cs2_lineups_${mapName}`;
   const localRaw = localStorage.getItem(localKey);
 
   try {
+    // 1) Always load base (admin) data
+    const res = await fetch(baseUrl, { cache: "no-store" });
+    if (!res.ok) throw new Error(`fetch ${baseUrl} failed: ${res.status}`);
+    const base = await res.json();
+
+    let mergedLineups = Array.isArray(base.lineups) ? base.lineups.slice() : [];
+    let mergedExecutes = Array.isArray(base.executes) ? base.executes.slice() : [];
+
+    // 2) If local exists, merge by id (never delete admin items)
     if (localRaw) {
-      const parsed = JSON.parse(localRaw);
-      window.lineups = parsed.lineups || [];
-      window.executes = parsed.executes || [];
-    } else {
-      // 2) Sinon charge le JSON du repo (pour tout le monde)
-      const res = await fetch(`data/${mapName}.json`, { cache: "no-store" });
-      if (!res.ok) throw new Error(`fetch data/${mapName}.json failed: ${res.status}`);
-      const data = await res.json();
-      window.lineups = data.lineups || [];
-      window.executes = data.executes || [];
+      try {
+        const local = JSON.parse(localRaw);
+
+        if (Array.isArray(local.lineups)) {
+          const byId = new Map(mergedLineups.map(l => [l.id, l]));
+          for (const l of local.lineups) {
+            if (!l || !l.id) continue;
+            byId.set(l.id, l); // override or add
+          }
+          mergedLineups = Array.from(byId.values());
+        }
+
+        if (Array.isArray(local.executes)) {
+          const byId = new Map(mergedExecutes.map(e => [e.id, e]));
+          for (const e of local.executes) {
+            if (!e || !e.id) continue;
+            byId.set(e.id, e);
+          }
+          mergedExecutes = Array.from(byId.values());
+        }
+      } catch (e) {
+        console.warn("Local data is invalid JSON, ignoring.", e);
+      }
     }
 
-    // Charge ton script principal
+    window.lineups = mergedLineups;
+    window.executes = mergedExecutes;
+
+    // 3) Load main app script
     const appScript = document.createElement("script");
     appScript.src = "script.js";
     document.body.appendChild(appScript);
   } catch (err) {
     console.error(err);
-    alert(`Impossible de charger les données pour "${mapName}". Vérifie data/${mapName}.json`);
+    alert(`Impossible de charger les données pour "${mapName}". Vérifie ${baseUrl}`);
   }
 })();

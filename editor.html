@@ -1,98 +1,129 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CS2 Lineups – Editor</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* --- Top bar (self-contained so you don't need to touch style.css) --- */
+    .ed-topbar{
+      display:grid;
+      grid-template-columns: auto 1fr auto;
+      align-items:center;
+      gap:14px;
+      padding:14px 18px;
+      margin:0 0 18px;
+      background: linear-gradient(180deg, #020617, #000);
+      border-bottom: 1px solid #1f2937;
+    }
+    .ed-topbar a.ed-back{
+      color:#a5b4fc;
+      text-decoration:none;
+      font-weight:600;
+    }
+    .ed-topbar a.ed-back:hover{ text-decoration:underline; }
+    .ed-topbar .ed-center{
+      display:flex; justify-content:center; align-items:center; gap:10px;
+      color:#c7d2fe; font-size:14px;
+    }
+    .ed-topbar select{
+      background:#020617;
+      color:#fff;
+      border:1px solid #334155;
+      border-radius:10px;
+      padding:6px 10px;
+    }
+    .ed-topbar .ed-right{
+      display:flex; gap:10px; align-items:center;
+    }
+    .ed-topbar .ed-btn{
+      padding:7px 12px;
+      border-radius:10px;
+      background:transparent;
+      border:1px solid #334155;
+      color:#e5e7eb;
+      cursor:pointer;
+    }
+    .ed-topbar .ed-btn:hover{ border-color:#818cf8; color:#fff; }
+    .ed-topbar .ed-btn.primary{
+      background:#4f46e5; border-color:#4f46e5; color:#fff;
+    }
+    .ed-topbar .ed-btn.primary:hover{ background:#6366f1; }
+
+    /* --- Small, clean help panel --- */
+    .ed-help{
+      max-width: 980px;
+      margin: 0 auto 18px;
+      border: 1px solid #1f2937;
+      border-radius: 14px;
+      overflow: hidden;
+      background: rgba(2,6,23,.55);
+    }
+    .ed-help summary{
+      cursor:pointer;
+      padding:12px 14px;
+      font-weight:700;
+      color:#f8fafc;
+      list-style:none;
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .ed-help summary::-webkit-details-marker{ display:none; }
+    .ed-help .ed-help-body{
+      padding: 12px 14px 14px;
+      color:#cbd5e1;
+      font-size: 14px;
+      line-height: 1.35;
+      border-top: 1px solid #1f2937;
+    }
+    .ed-help code{
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      padding: 2px 6px;
+      border-radius: 8px;
+    }
+    .ed-help .eg{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(99,102,241,.25);
+      background: rgba(99,102,241,.08);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+    }
+    .editor-status{ margin-left:10px; color:#a7f3d0; font-size:13px; }
+  </style>
 </head>
 <body>
 
-<h1>CS2 Lineups – Editor</h1>
+<header class="ed-topbar">
+  <a class="ed-back" href="index.html">← Back</a>
 
-<div class="editor-top">
-  <a class="editor-link" href="index.html">← Back</a>
-
-  <label class="editor-label">
-    Map:
+  <div class="ed-center">
+    <span style="font-weight:700;">Map</span>
     <select id="ed-map">
       <option value="overpass">overpass</option>
       <option value="mirage">mirage</option>
       <option value="inferno">inferno</option>
     </select>
-  </label>
-
-  <button id="import-json">Import JSON</button>
-  <button id="export-json">Export JSON</button>
-</div>
-
-<p class="editor-help">
-  Create your lineups and executes, then export the JSON and send it to the site owner.
-</p>
-
-<details class="editor-docs">
-  <summary>Field guide (what each setting does) + examples</summary>
-
-  <div class="editor-docs-body">
-    <div class="doc-grid">
-      <div class="doc-item">
-        <h3>ID</h3>
-        <p><b>Unique identifier</b> for a lineup. This is what you copy/paste into executes.</p>
-        <p class="doc-ex">Example: <code>bank_smoke</code> or <code>monster_smoke_from_ct</code></p>
-        <p class="doc-note">Tip: use lowercase + underscores. Don’t reuse the same ID on the same map.</p>
-      </div>
-
-      <div class="doc-item">
-        <h3>Type</h3>
-        <p>The grenade type used for filters and marker color.</p>
-        <p class="doc-ex">Values: <code>smoke</code>, <code>flash</code>, <code>molotov</code></p>
-      </div>
-
-      <div class="doc-item">
-        <h3>Side</h3>
-        <p>Which team throws it. Used for filters and for grouping keys (optional).</p>
-        <p class="doc-ex">Values: <code>T</code> or <code>CT</code></p>
-      </div>
-
-
-      <div class="doc-item">
-        <h3>Name</h3>
-        <p>The lineup name shown inside the panel item (each aim step).</p>
-        <p class="doc-ex">Example: <code>CT Spawn</code>, <code>One-way</code>, <code>Fast</code></p>
-      </div>
-
-      <div class="doc-item">
-        <h3>Target group (optional)</h3>
-        <p>Use this when <b>multiple lineups land on the same target</b> and you want a chooser popup instead of multiple markers.</p>
-        <p class="doc-ex">Example: <code>monster_smoke</code> for 2–3 variants landing on “Monster”.</p>
-      </div>
-
-      <div class="doc-item">
-        <h3>Variant (chooser label)</h3>
-        <p>Label used in the <b>variant chooser</b> when multiple lineups share the same <b>Target group</b>.</p>
-        <p class="doc-ex">Example: <code>CT Spawn</code>, <code>Heaven</code>, <code>Safe</code></p>
-        <p class="doc-note">If you don’t use Target group, Variant can be left empty.</p>
-      </div>
-
-      <div class="doc-item doc-wide">
-        <h3>Execute items (how to separate)</h3>
-        <p>Executes contain a list of lineup <b>IDs</b>. Separate IDs with commas.</p>
-        <p class="doc-ex"><code>bank_smoke, trash_smoke, truck_molly</code></p>
-        <p class="doc-note">These must match the lineup <b>ID</b> exactly.</p>
-      </div>
-
-    </div>
+    <span id="ed-status" class="editor-status"></span>
   </div>
-</details>
 
-  <span id="ed-status" class="editor-status"></span>
+  <div class="ed-right">
+    <button id="import-json" class="ed-btn">Import</button>
+    <button id="export-json" class="ed-btn primary">Export</button>
+  </div>
+</header>
+
+
 <div class="editor-layout">
   <div class="editor-left">
     <h2>Lineups</h2>
 
     <div class="editor-actions">
       <button id="ed-add" class="editor-btn">+ Add lineup</button>
-      <input id="ed-search" class="editor-input" placeholder="Search (spot/name/variant/id)…">
+      <!-- search removed on purpose -->
     </div>
 
     <div id="ed-list" class="editor-list"></div>
@@ -106,19 +137,12 @@
 
   <div class="editor-right">
     <h2>Map picker</h2>
-    <div class="pick-box">
-  <div class="pick-modes">
-  <button id="pick-target" class="pick-btn target active">Target</button>
-  <button id="pick-spot" class="pick-btn spot">Spot</button>
-</div>
-
-
-  <div class="pick-help">
-    <strong>Target</strong> → Where the grenade lands / explodes<br>
-    <strong>Spot</strong> → Where the player stands and throws from
-  </div>
-</div>
-
+    <p class="editor-hint">
+      Click on the map to pick coordinates<br>
+      Mode:
+      <button id="pick-target" class="editor-btn">Pick Target</button>
+      <button id="pick-throw" class="editor-btn editor-btn-weak">Pick Throw</button>
+    </p>
 
     <div id="ed-mapbox" class="editor-mapbox">
       <img id="ed-mapimg" alt="map">
@@ -128,8 +152,21 @@
 
     <h2>Selected lineup</h2>
     <div id="ed-form" class="editor-form">
-      <p class="editor-hint">Select a lineup or click “Add lineup”.</p>
+      <p class="editor-hint">Select a lineup on the left or click “Add lineup”.</p>
     </div>
+  </div>
+</div>
+
+<!-- Universal modal (used for all popups in editor) -->
+<div id="ui-modal" class="ui-modal hidden" aria-hidden="true">
+  <div class="ui-modal__backdrop" data-close="1"></div>
+  <div class="ui-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="ui-modal-title">
+    <div class="ui-modal__header">
+      <div id="ui-modal-title" class="ui-modal__title"></div>
+      <button id="ui-modal-x" class="icon-btn" type="button" aria-label="Close">✕</button>
+    </div>
+    <div id="ui-modal-body" class="ui-modal__body"></div>
+    <div id="ui-modal-actions" class="ui-modal__actions"></div>
   </div>
 </div>
 

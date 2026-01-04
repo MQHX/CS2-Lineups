@@ -10,6 +10,579 @@ const panelsRight = document.getElementById("panels-right");
 
 const overlay     = document.getElementById("map-overlay");
 
+
+// ==========================
+// UNIVERSAL MODAL (no browser prompt/confirm)
+// ==========================
+const UIModal = (() => {
+  const root = document.getElementById("ui-modal");
+  const titleEl = document.getElementById("ui-modal-title");
+  const bodyEl  = document.getElementById("ui-modal-body");
+  const actionsEl = document.getElementById("ui-modal-actions");
+  const closeBtn = document.getElementById("ui-modal-x");
+
+  let onClose = null;
+
+  function close() {
+    if (!root) return;
+    root.classList.add("hidden");
+    root.setAttribute("aria-hidden", "true");
+    bodyEl && (bodyEl.innerHTML = "");
+    actionsEl && (actionsEl.innerHTML = "");
+    if (typeof onClose === "function") onClose();
+    onClose = null;
+  }
+
+  function open({ title, body, actions = [], closeOnBackdrop = true, onCloseCb = null }) {
+    if (!root || !titleEl || !bodyEl || !actionsEl) {
+      console.warn("Modal DOM missing (#ui-modal, #ui-modal-title, #ui-modal-body, #ui-modal-actions).");
+      return;
+    }
+    onClose = onCloseCb;
+
+    titleEl.textContent = title || "";
+    bodyEl.innerHTML = "";
+    if (typeof body === "string") bodyEl.innerHTML = body;
+    else if (body instanceof Node) bodyEl.appendChild(body);
+
+    actionsEl.innerHTML = "";
+    actions.forEach(a => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = `ui-btn ${a.variant || ""}`.trim();
+      b.textContent = a.label || "OK";
+      if (a.disabled) b.disabled = true;
+      b.onclick = () => a.onClick?.();
+      actionsEl.appendChild(b);
+    });
+
+    root.classList.remove("hidden");
+    root.setAttribute("aria-hidden", "false");
+
+    // wiring
+    if (closeBtn) closeBtn.onclick = close;
+
+    const backdrop = root.querySelector(".ui-modal__backdrop");
+    if (backdrop) {
+      backdrop.onclick = () => { if (closeOnBackdrop) close(); };
+    }
+
+    document.addEventListener("keydown", escClose, { once: true });
+    function escClose(e) {
+      if (e.key === "Escape") close();
+      else document.addEventListener("keydown", escClose, { once: true });
+    }
+  }
+
+  function confirm({ title, message, confirmText = "Confirm", cancelText = "Cancel", danger = false }) {
+    return new Promise(resolve => {
+      const body = document.createElement("div");
+      body.textContent = message || "";
+      open({
+        title,
+        body,
+        actions: [
+          { label: cancelText, onClick: () => { resolve(false); close(); } },
+          { label: confirmText, variant: danger ? "danger" : "primary", onClick: () => { resolve(true); close(); } },
+        ],
+        onCloseCb: () => resolve(false)
+      });
+    });
+  }
+
+  function prompt({ title, label, placeholder = "", value = "", confirmText = "OK", cancelText = "Cancel" }) {
+    return new Promise(resolve => {
+      const wrap = document.createElement("div");
+
+      const field = document.createElement("div");
+      field.className = "ui-field";
+
+      const lab = document.createElement("label");
+      lab.textContent = label || "";
+
+      const input = document.createElement("input");
+      input.className = "ui-input";
+      input.placeholder = placeholder;
+      input.value = value;
+
+      field.append(lab, input);
+      wrap.appendChild(field);
+
+      const submit = () => {
+        const v = input.value.trim();
+        if (!v) return;
+        resolve(v);
+        close();
+      };
+
+      open({
+        title,
+        body: wrap,
+        actions: [
+          { label: cancelText, onClick: () => { resolve(null); close(); } },
+          { label: confirmText, variant: "primary", onClick: submit }
+        ],
+        onCloseCb: () => resolve(null)
+      });
+
+      setTimeout(() => input.focus(), 0);
+      input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+    });
+  }
+
+  function selectList({ title, items, multi = false, selected = new Set(), confirmText = "Select", cancelText = "Cancel", searchable = true, searchPlaceholder = "Search..." }) {
+    return new Promise(resolve => {
+      const wrap = document.createElement("div");
+
+      let query = "";
+      const sel = new Set(selected);
+
+      let search = null;
+      if (searchable) {
+        const field = document.createElement("div");
+        field.className = "ui-field";
+        const lab = document.createElement("label");
+        lab.textContent = "Search";
+        search = document.createElement("input");
+        search.className = "ui-input";
+        search.placeholder = searchPlaceholder;
+        field.append(lab, search);
+        wrap.appendChild(field);
+      }
+
+      const list = document.createElement("div");
+      list.className = "ui-list";
+      wrap.appendChild(list);
+
+      function render() {
+        list.innerHTML = "";
+        const filtered = items.filter(it => {
+          if (!query) return true;
+          const hay = `${it.title||""} ${it.sub||""}`.toLowerCase();
+          return hay.includes(query.toLowerCase());
+        });
+
+        filtered.forEach(it => {
+          const row = document.createElement("div");
+          row.className = "ui-item";
+          if (sel.has(it.id)) row.classList.add("selected");
+
+          const meta = document.createElement("div");
+          meta.className = "meta";
+          const t = document.createElement("div");
+          t.className = "title";
+          t.textContent = it.title;
+          const sub = document.createElement("div");
+          sub.className = "sub";
+          sub.textContent = it.sub || "";
+          meta.append(t, sub);
+
+          const chip = document.createElement("div");
+          chip.className = "ui-chip";
+          chip.textContent = it.chip || (sel.has(it.id) ? "Selected" : ""); 
+          if (!chip.textContent) chip.style.visibility = "hidden";
+
+          row.append(meta, chip);
+
+          row.onclick = () => {
+            if (multi) {
+              if (sel.has(it.id)) sel.delete(it.id);
+              else sel.add(it.id);
+              render();
+            } else {
+              resolve(it.id);
+              close();
+            }
+          };
+
+          list.appendChild(row);
+        });
+      }
+
+      render();
+
+      if (search) {
+        search.addEventListener("input", () => { query = search.value; render(); });
+        setTimeout(() => search.focus(), 0);
+      }
+
+      const submit = () => {
+        resolve(sel);
+        close();
+      };
+
+      open({
+        title,
+        body: wrap,
+        actions: [
+          { label: cancelText, onClick: () => { resolve(null); close(); } },
+          { label: confirmText, variant: "primary", onClick: submit }
+        ],
+        onCloseCb: () => resolve(null)
+      });
+    });
+  }
+
+  return { open, close, confirm, prompt, selectList };
+})();
+
+// ==========================
+// USER GROUPS (per-map, local only)
+// - Create / Open / Edit / Delete
+// ==========================
+const UG_params = new URLSearchParams(location.search);
+const UG_rawMap = UG_params.get("map") || "default";
+const UG_mapKey = String(UG_rawMap).toLowerCase().replace(/[^a-z0-9_-]+/g, "_");
+const UG_storageKey = `cs2_user_groups_${UG_mapKey}`;
+
+let userGroups = JSON.parse(localStorage.getItem(UG_storageKey) || "[]");
+
+function saveUserGroups() {
+  localStorage.setItem(UG_storageKey, JSON.stringify(userGroups));
+}
+
+function ensureUserGroupsUI() {
+  const template = `
+    <div class="ug-head">
+      <div class="ug-title">My Groups</div>
+    </div>
+
+    <div id="user-groups-list" class="ug-list"></div>
+
+    <button id="add-group" class="ug-create" type="button">＋ Create group</button>
+  `;
+
+  // If the container already exists (older UI), normalize it.
+  const existing = document.getElementById("user-groups");
+  if (existing) {
+    existing.innerHTML = template;
+    return;
+  }
+
+  // Otherwise create it and place it before the right panel.
+  if (!panelsRight || !panelsRight.parentElement) return;
+
+  const wrap = document.createElement("div");
+  wrap.id = "user-groups";
+  wrap.innerHTML = template;
+
+  panelsRight.parentElement.insertBefore(wrap, panelsRight);
+}
+
+function ugGetOpenIdsPrefill() {
+  return Array.from(document.querySelectorAll(".lineup-item[data-id]"))
+    .map(el => el.dataset.id)
+    .filter(Boolean)
+    .join(", ");
+}
+
+function ugGetLineupById(id) {
+  // Prefer the fast index, fallback to array search
+  if (typeof lineupsById !== "undefined" && lineupsById && lineupsById.get) {
+    const lu = lineupsById.get(id);
+    if (lu) return lu;
+  }
+  if (Array.isArray(lineups)) return lineups.find(l => l.id === id);
+  return null;
+}
+
+function openGroup(group) {
+  group.items.forEach(id => {
+    const lu = ugGetLineupById(id);
+    if (lu) openPopup(lu, { mode: "group" });
+  });
+}
+
+async function modalPickGroupName(existing) {
+  return await UIModal.prompt({
+    title: existing ? "Edit group" : "Create group",
+    label: "Group name",
+    placeholder: "e.g. B Retake smokes",
+    value: existing?.name || "",
+    confirmText: existing ? "Save" : "Create"
+  });
+}
+
+function lineupItemsForPicker() {
+  const arr = Array.isArray(lineups) ? lineups.slice() : [];
+  arr.sort((a,b) => (a.name||a.id).localeCompare(b.name||b.id));
+  return arr.map(lu => ({
+    id: lu.id,
+    title: `${lu.name || lu.id}`,
+    sub: `${(lu.variant || "").trim()}${lu.variant ? " · " : ""}${(lu.side||"").trim()} ${lu.type || ""}`.trim(),
+    chip: (lu.type || "").toUpperCase(),
+    type: (lu.type || "").toLowerCase()
+  }));
+}
+
+async function modalPickGroupItems(existing) {
+  // Custom multi-select modal with Search + Type filters + Done button
+  const pre = new Set(existing?.items || []);
+  const items = lineupItemsForPicker(); // {id,title,sub,chip,type}
+
+  return await new Promise(resolve => {
+    const wrap = document.createElement("div");
+
+    // Search
+    let query = "";
+    const searchField = document.createElement("div");
+    searchField.className = "ui-field";
+    const searchLab = document.createElement("label");
+    searchLab.textContent = "Search";
+    const search = document.createElement("input");
+    search.className = "ui-input";
+    search.placeholder = "Search by name / variant / id…";
+    searchField.append(searchLab, search);
+    wrap.appendChild(searchField);
+
+    // Filters (type pills)
+    const filters = document.createElement("div");
+    filters.className = "pillbar modal-pillbar";
+    filters.innerHTML = `
+      <div class="pill-group" data-group="modal-type">
+        <button class="pill active" type="button" data-value="smoke">Smoke</button>
+        <button class="pill active" type="button" data-value="flash">Flash</button>
+        <button class="pill active" type="button" data-value="molotov">Molotov</button>
+      </div>
+    `;
+    wrap.appendChild(filters);
+
+    // List
+    const list = document.createElement("div");
+    list.className = "ui-list";
+    wrap.appendChild(list);
+
+    const sel = new Set(pre);
+    const activeTypes = new Set(["smoke","flash","molotov"]);
+
+    function updateDoneButton() {
+      const btn = document.querySelector("#ui-modal-actions .ui-btn.primary");
+      if (!btn) return;
+      btn.textContent = sel.size ? `Done (${sel.size})` : "Done";
+      btn.disabled = sel.size === 0;
+    }
+
+    function render() {
+      list.innerHTML = "";
+
+      const q = query.trim().toLowerCase();
+      const filtered = items.filter(it => {
+        if (it.type && !activeTypes.has(it.type)) return false;
+        if (!q) return true;
+        const hay = `${it.title||""} ${it.sub||""} ${it.id||""}`.toLowerCase();
+        return hay.includes(q);
+      });
+
+      filtered.forEach(it => {
+        const row = document.createElement("div");
+        row.className = "ui-item";
+        if (sel.has(it.id)) row.classList.add("selected");
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        const t = document.createElement("div");
+        t.className = "title";
+        t.textContent = it.title;
+        const sub = document.createElement("div");
+        sub.className = "sub";
+        sub.textContent = it.sub || "";
+        meta.append(t, sub);
+
+        const chip = document.createElement("div");
+        chip.className = `ui-chip chip-${it.type||""}`.trim();
+        chip.textContent = it.chip || "";
+        if (!chip.textContent) chip.style.visibility = "hidden";
+
+        row.append(meta, chip);
+
+        row.onclick = () => {
+          if (sel.has(it.id)) sel.delete(it.id);
+          else sel.add(it.id);
+          render();
+          updateDoneButton();
+        };
+
+        list.appendChild(row);
+      });
+
+      updateDoneButton();
+    }
+
+    // pill toggles
+    filters.querySelectorAll(".pill").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const v = btn.dataset.value;
+        const isActive = btn.classList.toggle("active");
+        if (isActive) activeTypes.add(v);
+        else activeTypes.delete(v);
+
+        // Never allow empty => keep at least one active
+        if (activeTypes.size === 0) {
+          activeTypes.add(v);
+          btn.classList.add("active");
+        }
+        render();
+      });
+    });
+
+    // search input
+    search.addEventListener("input", () => { query = search.value; render(); });
+
+    const submit = () => {
+      if (sel.size === 0) return; // blocked by disabled
+      resolve(Array.from(sel));
+      UIModal.close();
+    };
+
+    UIModal.open({
+      title: "Select lineups",
+      body: wrap,
+      closeOnBackdrop: false,
+      actions: [
+        { label: "Cancel", onClick: () => { resolve(null); UIModal.close(); } },
+        { label: "Done", variant: "primary", onClick: submit, disabled: sel.size === 0 }
+      ],
+      onCloseCb: () => resolve(null)
+    });
+
+    setTimeout(() => search.focus(), 0);
+    render();
+  });
+}
+
+async function editGroup(group) {
+  const name = await modalPickGroupName(group);
+  if (!name) return;
+
+  const items = await modalPickGroupItems(group);
+  if (!items) return;
+
+  group.name = name;
+  group.items = items;
+  saveUserGroups();
+  renderUserGroups();
+}
+
+async function deleteGroup(group) {
+  const ok = await UIModal.confirm({
+    title: "Delete group",
+    message: `Delete group "${group.name}" ?`,
+    confirmText: "Delete",
+    danger: true
+  });
+  if (!ok) return;
+
+  userGroups = userGroups.filter(g => g.id !== group.id);
+  saveUserGroups();
+  renderUserGroups();
+}
+function renderUserGroups() {
+  const box = document.getElementById("user-groups-list");
+  if (!box) return;
+
+  box.innerHTML = "";
+
+  if (!userGroups.length) {
+    const empty = document.createElement("div");
+    empty.className = "ug-empty";
+    empty.textContent = "No groups yet. Click “Create group”.";
+    box.appendChild(empty);
+    return;
+  }
+
+  userGroups.forEach(group => {
+    const row = document.createElement("div");
+    row.className = "ug-row";
+
+    const openBtn = document.createElement("button");
+    openBtn.className = "ug-open";
+    openBtn.type = "button";
+    openBtn.innerHTML = `
+      <span class="ug-name">${escapeHtml(group.name)}</span>
+      <span class="ug-count">${group.items?.length || 0}</span>
+    `;
+    openBtn.onclick = () => openGroup(group);
+
+    const actions = document.createElement("div");
+    actions.className = "ug-actions";
+
+    const editBtn = document.createElement("button");
+    editBtn.className = "ug-action";
+    editBtn.type = "button";
+    editBtn.title = "Edit group";
+    editBtn.innerHTML = pencilSvg();
+    editBtn.onclick = () => editGroup(group);
+
+    const delBtn = document.createElement("button");
+    delBtn.className = "ug-action ug-danger";
+    delBtn.type = "button";
+    delBtn.title = "Delete group";
+    delBtn.innerHTML = trashSvg();
+    delBtn.onclick = () => deleteGroup(group);
+
+    actions.append(editBtn, delBtn);
+    row.append(openBtn, actions);
+    box.appendChild(row);
+  });
+}
+
+function bindAddGroupButton() {
+  const btn = document.getElementById("add-group");
+  if (!btn) return;
+  if (btn.dataset.bound === "1") return;
+  btn.dataset.bound = "1";
+
+  btn.onclick = async () => {
+    const name = await modalPickGroupName(null);
+    if (!name) return;
+
+    const items = await modalPickGroupItems({ items: ugGetOpenIdsPrefill().split(',').map(s=>s.trim()).filter(Boolean) });
+    if (!items) return;
+
+    userGroups.push({
+      id: crypto.randomUUID(),
+      name,
+      items
+    });
+
+    saveUserGroups();
+    renderUserGroups();
+  };
+}
+
+// small helpers
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, (m) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "\"": "&quot;",
+    "'": "&#039;"
+  }[m]));
+}
+
+function pencilSvg() {
+  return `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"></path>
+      <path d="M20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83z"></path>
+    </svg>
+  `;
+}
+
+function trashSvg() {
+  return `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M6 7h12l-1 14H7L6 7z"></path>
+      <path d="M9 4h6l1 2H8l1-2z"></path>
+    </svg>
+  `;
+}
+
+
+
+
 // Lightbox
 const lightbox    = document.getElementById("lightbox");
 const lightboxImg = document.getElementById("lightbox-img");
@@ -23,8 +596,8 @@ const chooserClose = document.getElementById("chooser-close");
 // Executes
 const executesBox = document.getElementById("executes");
 
-// Filtres
-const checkboxes = document.querySelectorAll("#filters input");
+// Filtres (pills)
+const filterPills = document.querySelectorAll("#filters .pill");
 
 // ==========================
 // 1) Garde-fous
@@ -79,37 +652,30 @@ document.addEventListener("keydown", (e) => {
 });
 
 // ==========================
-// 4) Chooser (variants)
+// 4) Chooser (variants) — now uses Universal Modal
 // ==========================
-if (chooserClose && chooser) chooserClose.addEventListener("click", () => chooser.classList.add("hidden"));
-if (chooser) {
-  chooser.addEventListener("click", (e) => {
-    if (e.target === chooser) chooser.classList.add("hidden");
-  });
-}
 
 function openChooser(group) {
-  if (!chooser || !chooserTitle || !chooserList) {
-    console.error("Chooser DOM manquant (#chooser / #chooser-title / #chooser-list).");
-    return;
-  }
+  // Modal single-select (clean)
+  group.sort((a, b) => (a.variant || a.name || a.id).localeCompare(b.variant || b.name || b.id));
 
-  group.sort((a, b) => (a.variant || a.name || "").localeCompare(b.variant || b.name || ""));
+  const items = group.map(lu => ({
+    id: lu.id,
+    title: lu.variant || lu.name || lu.id,
+    sub: lu.description || lu.side || lu.type || "",
+    chip: lu.type ? lu.type.toUpperCase() : ""
+  }));
 
-  chooserTitle.textContent = `${group[0].name || "Lineup"} — ${group.length} variants`;
-  chooserList.innerHTML = "";
-
-  group.forEach(lu => {
-    const btn = document.createElement("button");
-    btn.textContent = lu.variant || lu.name || lu.id;
-    btn.onclick = () => {
-      chooser.classList.add("hidden");
-      openPopup(lu);
-    };
-    chooserList.appendChild(btn);
+  UIModal.selectList({
+    title: `${group[0].name || "Lineup"} — ${group.length} variants`,
+    items,
+    multi: false,
+    searchable: false
+  }).then(id => {
+    if (!id) return;
+    const lu = group.find(x => x.id === id);
+    if (lu) openPopup(lu);
   });
-
-  chooser.classList.remove("hidden");
 }
 
 // ==========================
@@ -121,7 +687,7 @@ function buildMarkers() {
   const lineupsByTarget = new Map();
 
   lineups.forEach(lu => {
-    const key = lu.target || lu.id;
+    const key = (lu.target && String(lu.target).trim()) ? lu.target : lu.id;
     if (!lineupsByTarget.has(key)) lineupsByTarget.set(key, []);
     lineupsByTarget.get(key).push(lu);
   });
@@ -146,19 +712,22 @@ function buildMarkers() {
 }
 
 // ==========================
-// 6) Filtres
+// 6) Filtres (pills)
 // ==========================
+function getActiveValues(groupName, allowed) {
+  const group = document.querySelector(`.pill-group[data-group="${groupName}"]`);
+  if (!group) return allowed.slice();
+
+  const active = Array.from(group.querySelectorAll(".pill.active"))
+    .map(b => b.dataset.value)
+    .filter(v => allowed.includes(v));
+
+  return active.length ? active : allowed.slice();
+}
+
 function updateFilters() {
-  const activeTypes = Array.from(checkboxes)
-    .filter(cb => cb.checked && ["smoke", "flash", "molotov"].includes(cb.value))
-    .map(cb => cb.value);
-
-  const activeSides = Array.from(checkboxes)
-    .filter(cb => cb.checked && ["T", "CT"].includes(cb.value))
-    .map(cb => cb.value);
-
-  const typesToUse = activeTypes.length ? activeTypes : ["smoke", "flash", "molotov"];
-  const sidesToUse = activeSides.length ? activeSides : ["T", "CT"];
+  const typesToUse = getActiveValues("type", ["smoke","flash","molotov"]);
+  const sidesToUse = getActiveValues("side", ["T","CT"]);
 
   markers.forEach(m => {
     const okType = typesToUse.includes(m.type);
@@ -167,7 +736,11 @@ function updateFilters() {
   });
 }
 
-checkboxes.forEach(cb => cb.addEventListener("change", updateFilters));
+// toggle pills
+filterPills.forEach(p => p.addEventListener("click", () => {
+  p.classList.toggle("active");
+  updateFilters();
+}));
 
 // ==========================
 // 7) Clic map => coords
@@ -186,16 +759,15 @@ if (map) {
 // 8) Panels + overlays
 // ==========================
 function openPopup(lineup, opts = {}) {
-
   if (!panelsLeft || !panelsRight) return;
 
-const forced = opts.forceSide; // "left" | "right" | undefined
-const targetPanels =
-  forced === "left"  ? panelsLeft :
-  forced === "right" ? panelsRight :
-  (lineup.type === "smoke" ? panelsLeft : panelsRight);
+  const forced = opts.forceSide; // "left" | "right" | undefined
+  const targetPanels =
+    forced === "left"  ? panelsLeft :
+    forced === "right" ? panelsRight :
+    (lineup.type === "smoke" ? panelsLeft : panelsRight);
 
-  // déjà ouvert en tant qu'item ?
+  // Si déjà ouvert : remonter le panel + refresh overlays
   const existingItem = document.querySelector(`.lineup-item[data-id="${lineup.id}"]`);
   if (existingItem) {
     const panel = existingItem.closest(".panel");
@@ -203,61 +775,43 @@ const targetPanels =
     return;
   }
 
-  // clé de groupement (même point de lancement)
   const isExecute = opts.mode === "execute";
   const key = isExecute
-  ? getSpotKey(lineup)                  // groupement cross-type
-  : (lineup.throwKey || getThrowKey(lineup)); // ton groupement normal
+    ? getSpotKey(lineup)
+    : (lineup.throwKey || getThrowKey(lineup));
 
-
-  // si pas de throw => panel classique (1 lineup = 1 panel)
+  // Sans throw => panel simple
   if (!key) {
-    const panel = createGroupPanel(targetPanels, null, lineup); // groupKey null => panel simple
+    const panel = createGroupPanel(targetPanels, null, lineup);
     targetPanels.prepend(panel);
-    addOverlay(lineup, 0); // badge sera set par renumberType
-    renumberType(lineup.type);
-    return;
-  }
-
-  // panel groupé déjà présent ?
-  let groupPanel = document.querySelector(`.panel[data-throwkey="${CSS.escape(key)}"]`);
-
-  // sinon on le crée
-  if (!groupPanel) {
-    groupPanel = createGroupPanel(targetPanels, key, lineup);
-    targetPanels.prepend(groupPanel);
-  if (!groupPanel) {
-  groupPanel = createGroupPanel(targetPanels, key, lineup);
-
-  if (isExecute) targetPanels.appendChild(groupPanel);
-  else targetPanels.prepend(groupPanel);
-}
-  if (groupPanel && !isExecute) {
-  targetPanels.prepend(groupPanel);
-}
-
-
-    // overlay pour la lineup (le point de lancement unique sera géré par l'existant, toi tu gardes un point par lineup actuellement)
     addOverlay(lineup, 0);
     renumberType(lineup.type);
     return;
   }
 
-  // panel groupé existe : on ajoute juste un item (visée)
-  targetPanels.prepend(groupPanel);
-  appendLineupItem(groupPanel, lineup);
+  // Cherche d'abord dans la colonne cible (sinon global)
+  let groupPanel = targetPanels.querySelector(`.panel[data-throwkey="${CSS.escape(key)}"]`)
+                || document.querySelector(`.panel[data-throwkey="${CSS.escape(key)}"]`);
+
+  if (!groupPanel) {
+    groupPanel = createGroupPanel(targetPanels, key, lineup);
+  } else {
+    // remonter le panel groupé
+    targetPanels.prepend(groupPanel);
+    // ajoute l'item (visée)
+    appendLineupItem(groupPanel, lineup);
+  }
 
   addOverlay(lineup, 0);
   renumberType(lineup.type);
 }
+
 function createGroupPanel(targetPanels, throwKey, firstLineup) {
   const panel = document.createElement("div");
   panel.className = "panel";
   panel.dataset.type = firstLineup.type;
-
   if (throwKey) panel.dataset.throwkey = throwKey;
 
-  // Header panel (tu peux changer le titre si tu veux)
   panel.innerHTML = `
     <span class="close-btn">✕</span>
     <h2>${throwKey ? "Spot" : firstLineup.name}</h2>
@@ -270,33 +824,23 @@ function createGroupPanel(targetPanels, throwKey, firstLineup) {
     `}
   `;
 
-// Lightbox: clique sur n'importe quelle image dans ce panel (spot + visées)
-panel.addEventListener("click", (e) => {
-  const img = e.target.closest("img");
-  if (!img) return;
-  if (!img.src) return;
-  openLightbox(img.src);
-});
-
-// Lightbox sur l'image du spot
-const spotImg = panel.querySelector(".spot-img");
-if (spotImg && spotImg.getAttribute("src")) {
-  spotImg.addEventListener("click", () => openLightbox(spotImg.src));
-}
+  // Lightbox sur toutes les images
+  panel.addEventListener("click", (e) => {
+    const img = e.target.closest("img");
+    if (!img || !img.src) return;
+    openLightbox(img.src);
+  });
 
   // fermer le panel : ferme toutes les lineups dedans
   panel.querySelector(".close-btn").onclick = () => {
-    panel.querySelectorAll(".lineup-item").forEach(item => {
-      const id = item.dataset.id;
-      removeOverlay(id);
-    });
+    panel.querySelectorAll(".lineup-item").forEach(item => removeOverlay(item.dataset.id));
     panel.remove();
     renumberType(firstLineup.type);
   };
 
   targetPanels.prepend(panel);
 
-  // pour panel simple : on met aussi Position + Aim dans la liste comme un item
+  // panel simple : on ajoute l'image spot en dessous du titre
   if (!throwKey) {
     panel.querySelector("h2").innerHTML = `<span class="badge"></span>${firstLineup.name}`;
     panel.insertAdjacentHTML("beforeend", `
@@ -312,7 +856,6 @@ function appendLineupItem(panel, lineup) {
   const list = panel.querySelector(".aim-list");
   if (!list) return;
 
-  // item visée (connecté)
   const item = document.createElement("div");
   item.className = "lineup-item";
   item.dataset.id = lineup.id;
@@ -328,19 +871,13 @@ function appendLineupItem(panel, lineup) {
       <button class="item-close" type="button">✕</button>
     </div>
 
-    <h4>Aim</h4>
     <img class="aim-img" src="${lineup.images?.aim || ""}" alt="aim">
   `;
 
-  // close uniquement cette lineup
   item.querySelector(".item-close").onclick = () => {
     removeOverlay(lineup.id);
     item.remove();
-
-    // si plus aucun item dans le panel => supprimer panel
-    if (panel.querySelectorAll(".lineup-item").length === 0) {
-      panel.remove();
-    }
+    if (panel.querySelectorAll(".lineup-item").length === 0) panel.remove();
     renumberType(lineup.type);
   };
 
@@ -520,36 +1057,40 @@ function openExecute(exec) {
 function renderExecutes() {
   if (!executesBox) return;
 
+  const grid = document.getElementById("exec-grid");
+  const clearBtn = document.getElementById("exec-clear");
+
   // Pas d'executes sur cette map
   if (typeof executes === "undefined" || !Array.isArray(executes) || executes.length === 0) {
     executesBox.style.display = "none";
     return;
   }
 
-  executesBox.style.display = "flex";
-  executesBox.innerHTML = "";
+  executesBox.style.display = "block";
+  if (grid) grid.innerHTML = "";
 
-  // Clear en premier
-  const clearBtn = document.createElement("button");
-  clearBtn.className = "exec-btn exec-clear"; // 👈 classe spéciale
-  clearBtn.textContent = "✕ Clear";
-  clearBtn.onclick = closeAllPanels;
-  executesBox.appendChild(clearBtn);
+  if (clearBtn) {
+    clearBtn.onclick = closeAllPanels;
+    clearBtn.style.display = "inline-flex";
+  }
 
-
-  // Puis les executes
   executes.forEach(exec => {
     const btn = document.createElement("button");
     btn.className = "exec-btn";
+    btn.type = "button";
     btn.textContent = exec.name || exec.id;
     btn.onclick = () => openExecute(exec);
-    executesBox.appendChild(btn);
+    (grid || executesBox).appendChild(btn);
   });
 }
+
 
 // ==========================
 // 11) Init
 // ==========================
+ensureUserGroupsUI();
 buildMarkers();
 updateFilters();
 renderExecutes();
+renderUserGroups();
+bindAddGroupButton();

@@ -3,32 +3,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CS2 Lineups – Choose map</title>
+  <title>CS2 Lineups</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>CS2 Lineups</h1>
+  <header class="app-header">
+  <h1 class="app-title">CS2 Lineups</h1>
+  <a href="editor.html" class="editor-btn">Editor</a>
+</header>
 
-<a href="editor.html" class="editor-link">
-  Editor
-</a>
 
-<p>Choose a map</p>
+  <div class="map-grid" aria-label="Maps">
+    <a class="map-card" href="viewer.html?map=overpass">
+      <img class="map-thumb" src="map-icons/overpass.png" alt="Overpass" loading="lazy">
+      <div class="map-name">Overpass</div>
+    </a>
 
-<div class="map-grid">
-  <a class="map-card" href="viewer.html?map=overpass">
-    <div class="map-name">Overpass</div>
-  </a>
+    <a class="map-card" href="viewer.html?map=mirage">
+      <img class="map-thumb" src="map-icons/mirage.png" alt="Mirage" loading="lazy">
+      <div class="map-name">Mirage</div>
+    </a>
 
-  <a class="map-card" href="viewer.html?map=mirage">
-    <div class="map-name">Mirage</div>
-  </a>
-
-  <a class="map-card" href="viewer.html?map=inferno">
-    <div class="map-name">Inferno</div>
-  </a>
-</div>
+    <a class="map-card" href="viewer.html?map=inferno">
+      <img class="map-thumb" src="map-icons/inferno.png" alt="Inferno" loading="lazy">
+      <div class="map-name">Inferno</div>
+    </a>
+  </div>
 
 </body>
 </html>
