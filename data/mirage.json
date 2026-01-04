@@ -1,0 +1,30 @@
+{
+  "lineups": [
+    {
+      "id": "window_insta_from_T",
+      "type": "smoke",
+      "side": "T",
+      "name": "Window",
+      "target": "window_smoke",
+      "variant": "T spawn (Insta)",
+      "description": "W-Jumpthrow",
+      "x": 38.1,
+      "y": 41.0,
+      "throw": { "x": 84.6, "y": 32.8 },
+      "images": {
+        "stand": "images/mirage/window_insta.png",
+        "aim": "",
+        "Insta": "true"
+      }
+    }
+],
+
+
+  "executes": [
+    {
+      "id": "",
+      "name": "",
+      "items": ["", "", ""]
+    }
+    ]
+}
