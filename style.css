@@ -1171,3 +1171,80 @@ body{
 #lightbox .lb-thumb{
   margin: 8px 0 !important;
 }
+
+/* ===========================
+   MOBILE FIX: panneaux + map
+   =========================== */
+@media (max-width: 768px){
+
+  /* 1) Empêche le scroll horizontal + garde la map accessible */
+  html, body{
+    overflow-x: hidden;
+    height: 100%;
+  }
+
+  /* 2) Le conteneur principal doit remplir l'écran */
+  .app, .page, .viewer, .container{
+    height: 100vh;
+  }
+
+  /* 3) MAP au-dessus (zone cliquable) */
+  #map-wrap, .map-wrap, #map-container, .map-container, .map-stage{
+    position: relative;
+    z-index: 1;
+    height: calc(100vh - 170px); /* réserve de la place pour les panneaux en bas */
+    min-height: 320px;
+    touch-action: manipulation;
+  }
+
+  /* 4) Les panneaux NE doivent plus être “devant” la map */
+  .left-panel, .right-panel, .panel-left, .panel-right, .side-panel{
+    position: fixed !important;
+    left: 12px !important;
+    right: 12px !important;
+    top: auto !important;
+    bottom: 12px !important;
+
+    width: auto !important;
+    max-width: none !important;
+
+    max-height: 155px !important;   /* panneau compact */
+    overflow: auto !important;
+
+    z-index: 20 !important;         /* au-dessus mais en BAS seulement */
+    pointer-events: auto !important;
+
+    backdrop-filter: blur(10px);
+  }
+
+  /* Si tu as 2 panneaux: on empile */
+  .left-panel, .panel-left{
+    bottom: 180px !important;
+    max-height: 130px !important;
+  }
+  .right-panel, .panel-right{
+    bottom: 12px !important;
+    max-height: 155px !important;
+  }
+
+  /* 5) Empêche qu'un overlay transparent bloque les taps */
+  #lightbox[aria-hidden="true"]{
+    display: none !important;
+    pointer-events: none !important;
+  }
+
+  /* 6) Boutons/filtres en haut: plus petits, et ne débordent pas */
+  .filters, .top-filters, .toolbar{
+    position: sticky;
+    top: 8px;
+    z-index: 10;
+    transform: none !important;
+    margin: 0 auto;
+    max-width: 100%;
+  }
+
+  /* 7) Réduit la taille des icônes sur mobile (si besoin) */
+  .marker, .marker-target{
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+}
