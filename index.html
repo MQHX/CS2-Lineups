@@ -6,30 +6,34 @@
   <title>CS2 Lineups</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="home-page">
 
   <header class="app-header">
-  <h1 class="app-title">CS2 Lineups</h1>
-  <a href="editor.html" class="editor-btn">Editor</a>
-</header>
+    <div class="brand">
+      <div class="brand-title">CS2 Lineups</div>
+      <div class="brand-sub">Choose a map</div>
+    </div>
+    <a href="editor.html" class="btn-primary">Open Editor</a>
+  </header>
 
+  <main class="home-wrap">
+    <div class="map-grid" aria-label="Maps">
+      <a class="map-card" href="viewer.html?map=overpass">
+        <img class="map-thumb" src="map-icons/overpass.png" alt="Overpass" loading="lazy">
+        <div class="map-name">Overpass</div>
+      </a>
 
-  <div class="map-grid" aria-label="Maps">
-    <a class="map-card" href="viewer.html?map=overpass">
-      <img class="map-thumb" src="map-icons/overpass.png" alt="Overpass" loading="lazy">
-      <div class="map-name">Overpass</div>
-    </a>
+      <a class="map-card" href="viewer.html?map=mirage">
+        <img class="map-thumb" src="map-icons/mirage.png" alt="Mirage" loading="lazy">
+        <div class="map-name">Mirage</div>
+      </a>
 
-    <a class="map-card" href="viewer.html?map=mirage">
-      <img class="map-thumb" src="map-icons/mirage.png" alt="Mirage" loading="lazy">
-      <div class="map-name">Mirage</div>
-    </a>
-
-    <a class="map-card" href="viewer.html?map=inferno">
-      <img class="map-thumb" src="map-icons/inferno.png" alt="Inferno" loading="lazy">
-      <div class="map-name">Inferno</div>
-    </a>
-  </div>
+      <a class="map-card" href="viewer.html?map=inferno">
+        <img class="map-thumb" src="map-icons/inferno.png" alt="Inferno" loading="lazy">
+        <div class="map-name">Inferno</div>
+      </a>
+    </div>
+  </main>
 
 </body>
 </html>

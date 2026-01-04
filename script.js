@@ -1,6 +1,11 @@
 // ==========================
-// 0) DOM
+// CS2 Lineups — Viewer script (FIXED)
+// Works with viewer.html + loader.js (JSON data)
 // ==========================
+
+// --------------------------
+// 0) DOM
+// --------------------------
 const container   = document.getElementById("map-container");
 const map         = document.getElementById("map");
 const coordsText  = document.getElementById("coords");
@@ -10,741 +15,426 @@ const panelsRight = document.getElementById("panels-right");
 
 const overlay     = document.getElementById("map-overlay");
 
-
-// ==========================
-// UNIVERSAL MODAL (no browser prompt/confirm)
-// ==========================
-const UIModal = (() => {
-  const root = document.getElementById("ui-modal");
-  const titleEl = document.getElementById("ui-modal-title");
-  const bodyEl  = document.getElementById("ui-modal-body");
-  const actionsEl = document.getElementById("ui-modal-actions");
-  const closeBtn = document.getElementById("ui-modal-x");
-
-  let onClose = null;
-
-  function close() {
-    if (!root) return;
-    root.classList.add("hidden");
-    root.setAttribute("aria-hidden", "true");
-    bodyEl && (bodyEl.innerHTML = "");
-    actionsEl && (actionsEl.innerHTML = "");
-    if (typeof onClose === "function") onClose();
-    onClose = null;
-  }
-
-  function open({ title, body, actions = [], closeOnBackdrop = true, onCloseCb = null }) {
-    if (!root || !titleEl || !bodyEl || !actionsEl) {
-      console.warn("Modal DOM missing (#ui-modal, #ui-modal-title, #ui-modal-body, #ui-modal-actions).");
-      return;
-    }
-    onClose = onCloseCb;
-
-    titleEl.textContent = title || "";
-    bodyEl.innerHTML = "";
-    if (typeof body === "string") bodyEl.innerHTML = body;
-    else if (body instanceof Node) bodyEl.appendChild(body);
-
-    actionsEl.innerHTML = "";
-    actions.forEach(a => {
-      const b = document.createElement("button");
-      b.type = "button";
-      b.className = `ui-btn ${a.variant || ""}`.trim();
-      b.textContent = a.label || "OK";
-      if (a.disabled) b.disabled = true;
-      b.onclick = () => a.onClick?.();
-      actionsEl.appendChild(b);
-    });
-
-    root.classList.remove("hidden");
-    root.setAttribute("aria-hidden", "false");
-
-    // wiring
-    if (closeBtn) closeBtn.onclick = close;
-
-    const backdrop = root.querySelector(".ui-modal__backdrop");
-    if (backdrop) {
-      backdrop.onclick = () => { if (closeOnBackdrop) close(); };
-    }
-
-    document.addEventListener("keydown", escClose, { once: true });
-    function escClose(e) {
-      if (e.key === "Escape") close();
-      else document.addEventListener("keydown", escClose, { once: true });
-    }
-  }
-
-  function confirm({ title, message, confirmText = "Confirm", cancelText = "Cancel", danger = false }) {
-    return new Promise(resolve => {
-      const body = document.createElement("div");
-      body.textContent = message || "";
-      open({
-        title,
-        body,
-        actions: [
-          { label: cancelText, onClick: () => { resolve(false); close(); } },
-          { label: confirmText, variant: danger ? "danger" : "primary", onClick: () => { resolve(true); close(); } },
-        ],
-        onCloseCb: () => resolve(false)
-      });
-    });
-  }
-
-  function prompt({ title, label, placeholder = "", value = "", confirmText = "OK", cancelText = "Cancel" }) {
-    return new Promise(resolve => {
-      const wrap = document.createElement("div");
-
-      const field = document.createElement("div");
-      field.className = "ui-field";
-
-      const lab = document.createElement("label");
-      lab.textContent = label || "";
-
-      const input = document.createElement("input");
-      input.className = "ui-input";
-      input.placeholder = placeholder;
-      input.value = value;
-
-      field.append(lab, input);
-      wrap.appendChild(field);
-
-      const submit = () => {
-        const v = input.value.trim();
-        if (!v) return;
-        resolve(v);
-        close();
-      };
-
-      open({
-        title,
-        body: wrap,
-        actions: [
-          { label: cancelText, onClick: () => { resolve(null); close(); } },
-          { label: confirmText, variant: "primary", onClick: submit }
-        ],
-        onCloseCb: () => resolve(null)
-      });
-
-      setTimeout(() => input.focus(), 0);
-      input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
-    });
-  }
-
-  function selectList({ title, items, multi = false, selected = new Set(), confirmText = "Select", cancelText = "Cancel", searchable = true, searchPlaceholder = "Search..." }) {
-    return new Promise(resolve => {
-      const wrap = document.createElement("div");
-
-      let query = "";
-      const sel = new Set(selected);
-
-      let search = null;
-      if (searchable) {
-        const field = document.createElement("div");
-        field.className = "ui-field";
-        const lab = document.createElement("label");
-        lab.textContent = "Search";
-        search = document.createElement("input");
-        search.className = "ui-input";
-        search.placeholder = searchPlaceholder;
-        field.append(lab, search);
-        wrap.appendChild(field);
-      }
-
-      const list = document.createElement("div");
-      list.className = "ui-list";
-      wrap.appendChild(list);
-
-      function render() {
-        list.innerHTML = "";
-        const filtered = items.filter(it => {
-          if (!query) return true;
-          const hay = `${it.title||""} ${it.sub||""}`.toLowerCase();
-          return hay.includes(query.toLowerCase());
-        });
-
-        filtered.forEach(it => {
-          const row = document.createElement("div");
-          row.className = "ui-item";
-          if (sel.has(it.id)) row.classList.add("selected");
-
-          const meta = document.createElement("div");
-          meta.className = "meta";
-          const t = document.createElement("div");
-          t.className = "title";
-          t.textContent = it.title;
-          const sub = document.createElement("div");
-          sub.className = "sub";
-          sub.textContent = it.sub || "";
-          meta.append(t, sub);
-
-          const chip = document.createElement("div");
-          chip.className = "ui-chip";
-          chip.textContent = it.chip || (sel.has(it.id) ? "Selected" : ""); 
-          if (!chip.textContent) chip.style.visibility = "hidden";
-
-          row.append(meta, chip);
-
-          row.onclick = () => {
-            if (multi) {
-              if (sel.has(it.id)) sel.delete(it.id);
-              else sel.add(it.id);
-              render();
-            } else {
-              resolve(it.id);
-              close();
-            }
-          };
-
-          list.appendChild(row);
-        });
-      }
-
-      render();
-
-      if (search) {
-        search.addEventListener("input", () => { query = search.value; render(); });
-        setTimeout(() => search.focus(), 0);
-      }
-
-      const submit = () => {
-        resolve(sel);
-        close();
-      };
-
-      open({
-        title,
-        body: wrap,
-        actions: [
-          { label: cancelText, onClick: () => { resolve(null); close(); } },
-          { label: confirmText, variant: "primary", onClick: submit }
-        ],
-        onCloseCb: () => resolve(null)
-      });
-    });
-  }
-
-  return { open, close, confirm, prompt, selectList };
-})();
-
-// ==========================
-// USER GROUPS (per-map, local only)
-// - Create / Open / Edit / Delete
-// ==========================
-const UG_params = new URLSearchParams(location.search);
-const UG_rawMap = UG_params.get("map") || "default";
-const UG_mapKey = String(UG_rawMap).toLowerCase().replace(/[^a-z0-9_-]+/g, "_");
-const UG_storageKey = `cs2_user_groups_${UG_mapKey}`;
-
-let userGroups = JSON.parse(localStorage.getItem(UG_storageKey) || "[]");
-
-function saveUserGroups() {
-  localStorage.setItem(UG_storageKey, JSON.stringify(userGroups));
-}
-
-function ensureUserGroupsUI() {
-  const template = `
-    <div class="ug-head">
-      <div class="ug-title">My Groups</div>
-    </div>
-
-    <div id="user-groups-list" class="ug-list"></div>
-
-    <button id="add-group" class="ug-create" type="button">＋ Create group</button>
-  `;
-
-  // If the container already exists (older UI), normalize it.
-  const existing = document.getElementById("user-groups");
-  if (existing) {
-    existing.innerHTML = template;
-    return;
-  }
-
-  // Otherwise create it and place it before the right panel.
-  if (!panelsRight || !panelsRight.parentElement) return;
-
-  const wrap = document.createElement("div");
-  wrap.id = "user-groups";
-  wrap.innerHTML = template;
-
-  panelsRight.parentElement.insertBefore(wrap, panelsRight);
-}
-
-function ugGetOpenIdsPrefill() {
-  return Array.from(document.querySelectorAll(".lineup-item[data-id]"))
-    .map(el => el.dataset.id)
-    .filter(Boolean)
-    .join(", ");
-}
-
-function ugGetLineupById(id) {
-  // Prefer the fast index, fallback to array search
-  if (typeof lineupsById !== "undefined" && lineupsById && lineupsById.get) {
-    const lu = lineupsById.get(id);
-    if (lu) return lu;
-  }
-  if (Array.isArray(lineups)) return lineups.find(l => l.id === id);
-  return null;
-}
-
-function openGroup(group) {
-  group.items.forEach(id => {
-    const lu = ugGetLineupById(id);
-    if (lu) openPopup(lu, { mode: "group" });
-  });
-}
-
-async function modalPickGroupName(existing) {
-  return await UIModal.prompt({
-    title: existing ? "Edit group" : "Create group",
-    label: "Group name",
-    placeholder: "e.g. B Retake smokes",
-    value: existing?.name || "",
-    confirmText: existing ? "Save" : "Create"
-  });
-}
-
-function lineupItemsForPicker() {
-  const arr = Array.isArray(lineups) ? lineups.slice() : [];
-  arr.sort((a,b) => (a.name||a.id).localeCompare(b.name||b.id));
-  return arr.map(lu => ({
-    id: lu.id,
-    title: `${lu.name || lu.id}`,
-    sub: `${(lu.variant || "").trim()}${lu.variant ? " · " : ""}${(lu.side||"").trim()} ${lu.type || ""}`.trim(),
-    chip: (lu.type || "").toUpperCase(),
-    type: (lu.type || "").toLowerCase()
-  }));
-}
-
-async function modalPickGroupItems(existing) {
-  // Custom multi-select modal with Search + Type filters + Done button
-  const pre = new Set(existing?.items || []);
-  const items = lineupItemsForPicker(); // {id,title,sub,chip,type}
-
-  return await new Promise(resolve => {
-    const wrap = document.createElement("div");
-
-    // Search
-    let query = "";
-    const searchField = document.createElement("div");
-    searchField.className = "ui-field";
-    const searchLab = document.createElement("label");
-    searchLab.textContent = "Search";
-    const search = document.createElement("input");
-    search.className = "ui-input";
-    search.placeholder = "Search by name / variant / id…";
-    searchField.append(searchLab, search);
-    wrap.appendChild(searchField);
-
-    // Filters (type pills)
-    const filters = document.createElement("div");
-    filters.className = "pillbar modal-pillbar";
-    filters.innerHTML = `
-      <div class="pill-group" data-group="modal-type">
-        <button class="pill active" type="button" data-value="smoke">Smoke</button>
-        <button class="pill active" type="button" data-value="flash">Flash</button>
-        <button class="pill active" type="button" data-value="molotov">Molotov</button>
-      </div>
-    `;
-    wrap.appendChild(filters);
-
-    // List
-    const list = document.createElement("div");
-    list.className = "ui-list";
-    wrap.appendChild(list);
-
-    const sel = new Set(pre);
-    const activeTypes = new Set(["smoke","flash","molotov"]);
-
-    function updateDoneButton() {
-      const btn = document.querySelector("#ui-modal-actions .ui-btn.primary");
-      if (!btn) return;
-      btn.textContent = sel.size ? `Done (${sel.size})` : "Done";
-      btn.disabled = sel.size === 0;
-    }
-
-    function render() {
-      list.innerHTML = "";
-
-      const q = query.trim().toLowerCase();
-      const filtered = items.filter(it => {
-        if (it.type && !activeTypes.has(it.type)) return false;
-        if (!q) return true;
-        const hay = `${it.title||""} ${it.sub||""} ${it.id||""}`.toLowerCase();
-        return hay.includes(q);
-      });
-
-      filtered.forEach(it => {
-        const row = document.createElement("div");
-        row.className = "ui-item";
-        if (sel.has(it.id)) row.classList.add("selected");
-
-        const meta = document.createElement("div");
-        meta.className = "meta";
-        const t = document.createElement("div");
-        t.className = "title";
-        t.textContent = it.title;
-        const sub = document.createElement("div");
-        sub.className = "sub";
-        sub.textContent = it.sub || "";
-        meta.append(t, sub);
-
-        const chip = document.createElement("div");
-        chip.className = `ui-chip chip-${it.type||""}`.trim();
-        chip.textContent = it.chip || "";
-        if (!chip.textContent) chip.style.visibility = "hidden";
-
-        row.append(meta, chip);
-
-        row.onclick = () => {
-          if (sel.has(it.id)) sel.delete(it.id);
-          else sel.add(it.id);
-          render();
-          updateDoneButton();
-        };
-
-        list.appendChild(row);
-      });
-
-      updateDoneButton();
-    }
-
-    // pill toggles
-    filters.querySelectorAll(".pill").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const v = btn.dataset.value;
-        const isActive = btn.classList.toggle("active");
-        if (isActive) activeTypes.add(v);
-        else activeTypes.delete(v);
-
-        // Never allow empty => keep at least one active
-        if (activeTypes.size === 0) {
-          activeTypes.add(v);
-          btn.classList.add("active");
-        }
-        render();
-      });
-    });
-
-    // search input
-    search.addEventListener("input", () => { query = search.value; render(); });
-
-    const submit = () => {
-      if (sel.size === 0) return; // blocked by disabled
-      resolve(Array.from(sel));
-      UIModal.close();
-    };
-
-    UIModal.open({
-      title: "Select lineups",
-      body: wrap,
-      closeOnBackdrop: false,
-      actions: [
-        { label: "Cancel", onClick: () => { resolve(null); UIModal.close(); } },
-        { label: "Done", variant: "primary", onClick: submit, disabled: sel.size === 0 }
-      ],
-      onCloseCb: () => resolve(null)
-    });
-
-    setTimeout(() => search.focus(), 0);
-    render();
-  });
-}
-
-async function editGroup(group) {
-  const name = await modalPickGroupName(group);
-  if (!name) return;
-
-  const items = await modalPickGroupItems(group);
-  if (!items) return;
-
-  group.name = name;
-  group.items = items;
-  saveUserGroups();
-  renderUserGroups();
-}
-
-async function deleteGroup(group) {
-  const ok = await UIModal.confirm({
-    title: "Delete group",
-    message: `Delete group "${group.name}" ?`,
-    confirmText: "Delete",
-    danger: true
-  });
-  if (!ok) return;
-
-  userGroups = userGroups.filter(g => g.id !== group.id);
-  saveUserGroups();
-  renderUserGroups();
-}
-function renderUserGroups() {
-  const box = document.getElementById("user-groups-list");
-  if (!box) return;
-
-  box.innerHTML = "";
-
-  if (!userGroups.length) {
-    const empty = document.createElement("div");
-    empty.className = "ug-empty";
-    empty.textContent = "No groups yet. Click “Create group”.";
-    box.appendChild(empty);
-    return;
-  }
-
-  userGroups.forEach(group => {
-    const row = document.createElement("div");
-    row.className = "ug-row";
-
-    const openBtn = document.createElement("button");
-    openBtn.className = "ug-open";
-    openBtn.type = "button";
-    openBtn.innerHTML = `
-      <span class="ug-name">${escapeHtml(group.name)}</span>
-      <span class="ug-count">${group.items?.length || 0}</span>
-    `;
-    openBtn.onclick = () => openGroup(group);
-
-    const actions = document.createElement("div");
-    actions.className = "ug-actions";
-
-    const editBtn = document.createElement("button");
-    editBtn.className = "ug-action";
-    editBtn.type = "button";
-    editBtn.title = "Edit group";
-    editBtn.innerHTML = pencilSvg();
-    editBtn.onclick = () => editGroup(group);
-
-    const delBtn = document.createElement("button");
-    delBtn.className = "ug-action ug-danger";
-    delBtn.type = "button";
-    delBtn.title = "Delete group";
-    delBtn.innerHTML = trashSvg();
-    delBtn.onclick = () => deleteGroup(group);
-
-    actions.append(editBtn, delBtn);
-    row.append(openBtn, actions);
-    box.appendChild(row);
-  });
-}
-
-function bindAddGroupButton() {
-  const btn = document.getElementById("add-group");
-  if (!btn) return;
-  if (btn.dataset.bound === "1") return;
-  btn.dataset.bound = "1";
-
-  btn.onclick = async () => {
-    const name = await modalPickGroupName(null);
-    if (!name) return;
-
-    const items = await modalPickGroupItems({ items: ugGetOpenIdsPrefill().split(',').map(s=>s.trim()).filter(Boolean) });
-    if (!items) return;
-
-    userGroups.push({
-      id: crypto.randomUUID(),
-      name,
-      items
-    });
-
-    saveUserGroups();
-    renderUserGroups();
-  };
-}
-
-// small helpers
-
-function escapeHtml(str) {
-  return String(str).replace(/[&<>"']/g, (m) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    "\"": "&quot;",
-    "'": "&#039;"
-  }[m]));
-}
-
-function pencilSvg() {
-  return `
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"></path>
-      <path d="M20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83z"></path>
-    </svg>
-  `;
-}
-
-function trashSvg() {
-  return `
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M6 7h12l-1 14H7L6 7z"></path>
-      <path d="M9 4h6l1 2H8l1-2z"></path>
-    </svg>
-  `;
-}
-
-
-
+// Executes
+const executesBox = document.getElementById("executes");
+const execGrid    = document.getElementById("exec-grid");
+const execClear   = document.getElementById("exec-clear");
+
+// Modal (universal)
+const uiModal      = document.getElementById("ui-modal");
+const uiModalTitle = document.getElementById("ui-modal-title");
+const uiModalBody  = document.getElementById("ui-modal-body");
+const uiModalAct   = document.getElementById("ui-modal-actions");
+const uiModalX     = document.getElementById("ui-modal-x");
 
 // Lightbox
 const lightbox    = document.getElementById("lightbox");
 const lightboxImg = document.getElementById("lightbox-img");
 
-// Chooser (variants)
-const chooser      = document.getElementById("chooser");
-const chooserTitle = document.getElementById("chooser-title");
-const chooserList  = document.getElementById("chooser-list");
-const chooserClose = document.getElementById("chooser-close");
+// Groups dock (exists in viewer.html; if not, we create it)
+let groupsDock = document.getElementById("groups-dock");
+let groupsList = document.getElementById("user-groups-list");
+let addGroupBtn = document.getElementById("add-group");
 
-// Executes
-const executesBox = document.getElementById("executes");
+// Filters (pill buttons)
+const pillType = Array.from(document.querySelectorAll('#filters .pill-group[data-group="type"] .pill'));
+const pillSide = Array.from(document.querySelectorAll('#filters .pill-group[data-group="side"] .pill'));
 
-// Filtres (pills)
-const filterPills = document.querySelectorAll("#filters .pill");
-
-// ==========================
-// 1) Garde-fous
-// ==========================
+// --------------------------
+// 1) Guard rails
+// --------------------------
 if (!container || !overlay) console.error("map-container ou map-overlay introuvable.");
 if (!panelsLeft || !panelsRight) console.error("Panels introuvables (#panels-left / #panels-right).");
 
-// `lineups` vient de data/<map>.js
-if (typeof lineups === "undefined" || !Array.isArray(lineups)) {
-  console.error("`lineups` n'est pas défini. Vérifie que data/<map>.js est bien chargé avant script.js");
+// `lineups` + `executes` viennent de loader.js (data/<map>.json)
+if (typeof window.lineups === "undefined" || !Array.isArray(window.lineups)) {
+  console.error("`lineups` n'est pas défini. Vérifie loader.js + data/<map>.json.");
+}
+if (typeof window.executes === "undefined") {
+  window.executes = [];
 }
 
-// ==========================
-// 2) State
-// ==========================
+// CSS.escape polyfill (very small) — prevents querySelector crashes on odd ids
+if (!window.CSS) window.CSS = {};
+if (typeof window.CSS.escape !== "function") {
+  window.CSS.escape = (value) => String(value).replace(/[^a-zA-Z0-9_\-]/g, (m) => `\\${m}`);
+}
+
+// --------------------------
+// 2) State / Index
+// --------------------------
+const lineups = Array.isArray(window.lineups) ? window.lineups : [];
+const executes = Array.isArray(window.executes) ? window.executes : [];
+
 const overlays = new Map();     // lineup.id -> { line, throwEl, label, type }
-const markers  = [];            // { marker, type, side }
+const markers  = [];            // { el, type, side, key }
 const lineupsById = new Map();  // id -> lineup
 
-// SVG defs pour les flèches
+lineups.forEach(lu => {
+  if (lu && lu.id) lineupsById.set(lu.id, lu);
+});
+
+// SVG defs (arrowheads)
 let defs = overlay ? overlay.querySelector("defs") : null;
 if (overlay && !defs) {
   defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
   overlay.appendChild(defs);
 }
 
-// Index rapide des lineups
-if (Array.isArray(lineups)) {
-  lineups.forEach(lu => lineupsById.set(lu.id, lu));
+// Surface runtime errors (so clicks don't fail silently)
+let __cs2_error_shown = false;
+window.addEventListener("error", (ev) => {
+  if (__cs2_error_shown) return;
+  __cs2_error_shown = true;
+  console.error("CS2 Lineups runtime error:", ev.error || ev.message);
+});
+
+// --------------------------
+// 3) Modal helpers
+// --------------------------
+function openModal({ title = "", body = "", actions = [] } = {}) {
+  if (!uiModal) return;
+  uiModalTitle.textContent = title;
+  uiModalBody.innerHTML = typeof body === "string" ? body : "";
+  uiModalAct.innerHTML = "";
+
+  for (const a of actions) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = a.className || "ui-btn";
+    btn.textContent = a.label || "OK";
+    btn.onclick = () => a.onClick && a.onClick();
+    uiModalAct.appendChild(btn);
+  }
+
+  uiModal.classList.remove("hidden");
+  uiModal.setAttribute("aria-hidden", "false");
 }
 
-// ==========================
-// 3) Lightbox
-// ==========================
-function openLightbox(src) {
-  if (!lightbox || !lightboxImg) return;
-  lightboxImg.src = src;
-  lightbox.classList.remove("hidden");
+function closeModal() {
+  if (!uiModal) return;
+  uiModal.classList.add("hidden");
+  uiModal.setAttribute("aria-hidden", "true");
+  uiModalTitle.textContent = "";
+  uiModalBody.innerHTML = "";
+  uiModalAct.innerHTML = "";
 }
+
+if (uiModalX) uiModalX.addEventListener("click", closeModal);
+if (uiModal) {
+  uiModal.addEventListener("click", (e) => {
+    if (e.target && e.target.getAttribute && e.target.getAttribute("data-close") === "1") closeModal();
+  });
+}
+
+// --------------------------
+// 4) Lightbox (Gallery with right rail)
+// --------------------------
+const __lb = {
+  built: false,
+  items: /** @type {{src:string,label:string}[]} */ ([]),
+  index: 0
+};
+
+function syncLightboxRailHeight() {
+  if (!lightbox || !lightboxImg) return;
+  const rail = lightbox.querySelector(".lb-rail");
+  if (!rail) return;
+
+  // Measure displayed image height (not natural)
+  const rect = lightboxImg.getBoundingClientRect();
+  if (!rect || rect.height <= 0) return;
+
+  rail.style.height = `${Math.round(rect.height)}px`;
+  rail.style.maxHeight = `${Math.round(rect.height)}px`;
+}
+
+
+function ensureLightboxStructure() {
+  if (!lightbox || !lightboxImg || __lb.built) return;
+  __lb.built = true;
+
+  // Build gallery UI around the existing #lightbox-img
+  const inner = document.createElement("div");
+  inner.className = "lb-inner";
+
+  const main = document.createElement("div");
+  main.className = "lb-main";
+
+  const rail = document.createElement("div");
+  rail.className = "lb-rail";
+  rail.setAttribute("aria-label", "Gallery");
+
+  // Move existing image into main
+  const img = lightboxImg;
+  img.classList.add("lb-img");
+  main.appendChild(img);
+
+  inner.appendChild(main);
+  inner.appendChild(rail);
+
+  // Replace lightbox content with the inner shell
+  lightbox.innerHTML = "";
+  lightbox.appendChild(inner);
+
+  // Prevent clicks inside from closing
+  inner.addEventListener("click", (e) => e.stopPropagation());
+
+  // Close only when clicking the backdrop
+  lightbox.addEventListener("click", closeLightbox);
+
+  // Wheel navigation inside the lightbox
+  inner.addEventListener("wheel", (e) => {
+    if (lightbox.classList.contains("hidden")) return;
+    if (!__lb.items || __lb.items.length <= 1) return;
+    e.preventDefault();
+    const dir = e.deltaY > 0 ? 1 : -1;
+    setLightboxIndex(__lb.index + dir);
+  }, { passive: false });
+
+  // Keep rail height synced with displayed image
+  window.addEventListener("resize", () => {
+    if (lightbox.classList.contains("hidden")) return;
+    syncLightboxRailHeight();
+  });
+  requestAnimationFrame(syncLightboxRailHeight);
+}
+
+function setLightboxIndex(nextIndex) {
+  if (!lightbox || !lightboxImg) return;
+  if (!__lb.items || __lb.items.length === 0) return;
+  const n = __lb.items.length;
+  __lb.index = (nextIndex % n + n) % n;
+
+  const it = __lb.items[__lb.index];
+  lightboxImg.onload = () => { syncLightboxRailHeight(); };
+  lightboxImg.src = it.src || "";
+  renderLightboxRail();
+  requestAnimationFrame(syncLightboxRailHeight);
+}
+
+function renderLightboxRail() {
+  if (!lightbox) return;
+  const rail = lightbox.querySelector(".lb-rail");
+  if (!rail) return;
+  rail.innerHTML = "";
+
+  (__lb.items || []).forEach((it, idx) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "lb-thumb" + (idx === __lb.index ? " is-active" : "");
+    btn.title = it.label || "";
+
+    const img = document.createElement("img");
+    img.loading = "lazy";
+    img.alt = it.label || "";
+    img.src = it.src;
+
+    const lab = document.createElement("div");
+    lab.className = "lb-thumb-label";
+    lab.textContent = it.label || "";
+
+    btn.appendChild(img);
+    btn.appendChild(lab);
+    btn.addEventListener("click", () => setLightboxIndex(idx));
+
+    rail.appendChild(btn);
+  });
+
+  // Keep active visible
+  const active = rail.querySelector(".lb-thumb.is-active");
+  if (active) active.scrollIntoView({ block: "nearest" });
+}
+
+function openLightboxGallery(items, startIndex = 0) {
+  if (!lightbox || !lightboxImg) return;
+  ensureLightboxStructure();
+
+  const cleaned = (items || [])
+    .map(it => ({ src: String(it.src || "").trim(), label: String(it.label || "").trim() }))
+    .filter(it => it.src);
+
+  if (cleaned.length === 0) return;
+
+  __lb.items = cleaned;
+  __lb.index = Math.max(0, Math.min(startIndex, cleaned.length - 1));
+
+  lightboxImg.onload = () => { syncLightboxRailHeight(); }; 
+  lightboxImg.src = cleaned[__lb.index].src;
+  lightbox.classList.remove("hidden");
+  lightbox.setAttribute("aria-hidden", "false");
+  renderLightboxRail();
+  requestAnimationFrame(syncLightboxRailHeight);
+}
+
+// Backward-compatible helper (single image)
+function openLightbox(src) {
+  const s = String(src || "").trim();
+  if (!s) return;
+  openLightboxGallery([{ src: s, label: "" }], 0);
+}
+
 function closeLightbox() {
   if (!lightbox || !lightboxImg) return;
   lightbox.classList.add("hidden");
+  lightbox.setAttribute("aria-hidden", "true");
   lightboxImg.src = "";
+  __lb.items = [];
+  __lb.index = 0;
+
+  // Clear rail if present
+  const rail = lightbox.querySelector(".lb-rail");
+  if (rail) rail.innerHTML = "";
 }
 
-if (lightbox) lightbox.addEventListener("click", closeLightbox);
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     closeLightbox();
-    if (chooser) chooser.classList.add("hidden");
+    closeModal();
+  }
+
+  // Lightbox navigation
+  if (!lightbox || lightbox.classList.contains("hidden")) return;
+  if (!__lb.items || __lb.items.length <= 1) return;
+
+  if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+    e.preventDefault();
+    setLightboxIndex(__lb.index + 1);
+  } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+    e.preventDefault();
+    setLightboxIndex(__lb.index - 1);
   }
 });
 
-// ==========================
-// 4) Chooser (variants) — now uses Universal Modal
-// ==========================
-
+// --------------------------
+// 5) Variants chooser (uses modal)
+// --------------------------
 function openChooser(group) {
-  // Modal single-select (clean)
-  group.sort((a, b) => (a.variant || a.name || a.id).localeCompare(b.variant || b.name || b.id));
+  const sorted = group.slice().sort((a, b) => (a.variant || a.name || "").localeCompare(b.variant || b.name || ""));
+  const title = `${sorted[0]?.name || "Lineup"} — ${sorted.length} variants`;
 
-  const items = group.map(lu => ({
-    id: lu.id,
-    title: lu.variant || lu.name || lu.id,
-    sub: lu.description || lu.side || lu.type || "",
-    chip: lu.type ? lu.type.toUpperCase() : ""
-  }));
+  const rows = sorted.map(lu => {
+    const label = lu.variant || lu.name || lu.id;
+    return `<button class="ui-list-row" data-id="${lu.id}">${escapeHtml(label)}</button>`;
+  }).join("");
 
-  UIModal.selectList({
-    title: `${group[0].name || "Lineup"} — ${group.length} variants`,
-    items,
-    multi: false,
-    searchable: false
-  }).then(id => {
-    if (!id) return;
-    const lu = group.find(x => x.id === id);
-    if (lu) openPopup(lu);
+  openModal({
+    title,
+    body: `<div class="ui-list">${rows}</div>`,
+    actions: [
+      { label: "Close", className: "ui-btn ui-btn-weak", onClick: closeModal }
+    ]
+  });
+
+  uiModalBody.querySelectorAll(".ui-list-row").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-id");
+      const lu = lineupsById.get(id);
+      closeModal();
+      if (lu) openPopup(lu);
+    });
   });
 }
 
-// ==========================
-// 5) Markers (groupés par target)
-// ==========================
+function escapeHtml(s) {
+  return String(s ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+// --------------------------
+// 6) Markers
+// - 1 marker per lineup (prevents position shifts)
+// - On click: if multiple variants share same key+coords => chooser
+// --------------------------
 function buildMarkers() {
   if (!Array.isArray(lineups) || !container) return;
 
-  const lineupsByTarget = new Map();
+  // remove previous
+  markers.forEach(m => m.el.remove());
+  markers.length = 0;
 
-  lineups.forEach(lu => {
-    const key = (lu.target && String(lu.target).trim()) ? lu.target : lu.id;
-    if (!lineupsByTarget.has(key)) lineupsByTarget.set(key, []);
-    lineupsByTarget.get(key).push(lu);
-  });
+  const nearly = (a, b, eps = 0.15) => Math.abs((a ?? 0) - (b ?? 0)) <= eps;
 
-  lineupsByTarget.forEach((group) => {
-    const first = group[0];
+  for (const lu of lineups) {
+    if (!lu) continue;
 
-    const marker = document.createElement("div");
-    marker.classList.add("marker", first.type);
-    marker.style.left = first.x + "%";
-    marker.style.top  = first.y + "%";
+    const el = document.createElement("div");
+    el.className = `marker marker-target ${lu.type || ""}`.trim();
 
-    marker.onclick = () => {
-      if (group.length === 1) openPopup(group[0]);
-      else openChooser(group);
-    };
+    const key = (lu.target || lu.id);
+    el.dataset.key = key;
+    el.dataset.id = lu.id || "";
 
-    container.appendChild(marker);
+    el.style.left = (lu.x ?? 0) + "%";
+    el.style.top  = (lu.y ?? 0) + "%";
 
-    markers.push({ marker, type: first.type, side: first.side });
+    el.addEventListener("click", () => {
+      try {
+        const group = lineups.filter(x => x && (x.target || x.id) === key && nearly(x.x, lu.x) && nearly(x.y, lu.y));
+        if (group.length > 1) openChooser(group);
+        else openPopup(lu);
+      } catch (err) {
+        console.error("Marker click failed:", err);
+      }
+    });
+
+    container.appendChild(el);
+    markers.push({ el, key, type: lu.type, side: lu.side });
+  }
+}
+
+function refreshActiveMarkers() {
+  // keys des lineups ouvertes (target ou id)
+  const activeKeys = new Set(
+    Array.from(document.querySelectorAll(".lineup-item[data-key]"))
+      .map(el => el.dataset.key)
+  );
+
+  markers.forEach(m => {
+    const isActive = activeKeys.has(m.key);
+    m.el.classList.toggle("marker-active", isActive);
+    // IMPORTANT: on NE grise PAS les autres
+    m.el.classList.remove("marker-dim");
   });
 }
 
-// ==========================
-// 6) Filtres (pills)
-// ==========================
-function getActiveValues(groupName, allowed) {
-  const group = document.querySelector(`.pill-group[data-group="${groupName}"]`);
-  if (!group) return allowed.slice();
-
-  const active = Array.from(group.querySelectorAll(".pill.active"))
-    .map(b => b.dataset.value)
-    .filter(v => allowed.includes(v));
-
-  return active.length ? active : allowed.slice();
+// --------------------------
+// 7) Filters (pill buttons)
+// --------------------------
+function getActivePills(btns, allValues) {
+  const active = btns.filter(b => b.classList.contains("active")).map(b => b.dataset.value);
+  return active.length ? active : allValues;
 }
 
 function updateFilters() {
-  const typesToUse = getActiveValues("type", ["smoke","flash","molotov"]);
-  const sidesToUse = getActiveValues("side", ["T","CT"]);
+  const typesToUse = getActivePills(pillType, ["smoke", "flash", "molotov"]);
+  const sidesToUse = getActivePills(pillSide, ["T", "CT"]);
 
   markers.forEach(m => {
     const okType = typesToUse.includes(m.type);
     const okSide = sidesToUse.includes(m.side);
-    m.marker.style.display = (okType && okSide) ? "block" : "none";
+    m.el.style.display = (okType && okSide) ? "block" : "none";
   });
 }
 
-// toggle pills
-filterPills.forEach(p => p.addEventListener("click", () => {
-  p.classList.toggle("active");
-  updateFilters();
-}));
+function wirePillGroup(btns) {
+  btns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      btn.classList.toggle("active");
+      updateFilters();
+    });
+  });
+}
+wirePillGroup(pillType);
+wirePillGroup(pillSide);
 
-// ==========================
-// 7) Clic map => coords
-// ==========================
+// --------------------------
+// 8) Click map => coords
+// --------------------------
 if (map) {
   map.addEventListener("click", (e) => {
     if (!coordsText) return;
@@ -755,9 +445,9 @@ if (map) {
   });
 }
 
-// ==========================
-// 8) Panels + overlays
-// ==========================
+// --------------------------
+// 9) Panels + overlays
+// --------------------------
 function openPopup(lineup, opts = {}) {
   if (!panelsLeft || !panelsRight) return;
 
@@ -767,91 +457,245 @@ function openPopup(lineup, opts = {}) {
     forced === "right" ? panelsRight :
     (lineup.type === "smoke" ? panelsLeft : panelsRight);
 
-  // Si déjà ouvert : remonter le panel + refresh overlays
-  const existingItem = document.querySelector(`.lineup-item[data-id="${lineup.id}"]`);
+  // already opened?
+  const existingItem = document.querySelector(`.lineup-item[data-id="${CSS.escape(lineup.id)}"]`);
   if (existingItem) {
     const panel = existingItem.closest(".panel");
     if (panel) targetPanels.prepend(panel);
+    setActiveLineup(panel, lineup.id);
+    refreshActiveMarkers();
     return;
   }
 
   const isExecute = opts.mode === "execute";
-  const key = isExecute
-    ? getSpotKey(lineup)
-    : (lineup.throwKey || getThrowKey(lineup));
+  const key = isExecute ? getSpotKey(lineup) : getThrowKey(lineup);
 
-  // Sans throw => panel simple
   if (!key) {
     const panel = createGroupPanel(targetPanels, null, lineup);
     targetPanels.prepend(panel);
+    appendLineupItem(panel, lineup);
     addOverlay(lineup, 0);
     renumberType(lineup.type);
+    refreshActiveMarkers();
     return;
   }
 
-  // Cherche d'abord dans la colonne cible (sinon global)
-  let groupPanel = targetPanels.querySelector(`.panel[data-throwkey="${CSS.escape(key)}"]`)
-                || document.querySelector(`.panel[data-throwkey="${CSS.escape(key)}"]`);
+  let groupPanel = document.querySelector(`.panel[data-throwkey="${CSS.escape(key)}"]`);
 
   if (!groupPanel) {
     groupPanel = createGroupPanel(targetPanels, key, lineup);
-  } else {
-    // remonter le panel groupé
+    if (isExecute) targetPanels.appendChild(groupPanel);
+    else targetPanels.prepend(groupPanel);
+  } else if (!isExecute) {
     targetPanels.prepend(groupPanel);
-    // ajoute l'item (visée)
-    appendLineupItem(groupPanel, lineup);
   }
 
+  appendLineupItem(groupPanel, lineup);
   addOverlay(lineup, 0);
   renumberType(lineup.type);
+  refreshActiveMarkers();
 }
 
 function createGroupPanel(targetPanels, throwKey, firstLineup) {
   const panel = document.createElement("div");
   panel.className = "panel";
-  panel.dataset.type = firstLineup.type;
+  panel.dataset.type = firstLineup.type || "";
   if (throwKey) panel.dataset.throwkey = throwKey;
 
   panel.innerHTML = `
-    <span class="close-btn">✕</span>
-    <h2>${throwKey ? "Spot" : firstLineup.name}</h2>
+    <button class="close-btn" type="button" aria-label="Close">✕</button>
+    <h2>${throwKey ? "Spot" : escapeHtml(firstLineup.name || firstLineup.id)}</h2>
 
     ${throwKey ? `
-      <img class="stand-img" src="${firstLineup.images?.stand || ""}" alt="stand">
-      <div class="aim-list"></div>
+      ${imgTag("spot-img", pickSpotSrc(firstLineup), "spot")}
+      <div class="panel-body">
+        <div class="lineup-view"><div class="aim-list"></div></div>
+        <div class="lineup-nav" aria-label="Lineups"></div>
+      </div>
     ` : `
-      <div class="aim-list"></div>
+      <div class="panel-body">
+        <div class="lineup-view"><div class="aim-list"></div></div>
+        <div class="lineup-nav" aria-label="Lineups"></div>
+      </div>
+      ${imgTag("stand-img", pickImageSrc(firstLineup,"stand"), "stand")}
     `}
   `;
 
-  // Lightbox sur toutes les images
   panel.addEventListener("click", (e) => {
     const img = e.target.closest("img");
-    if (!img || !img.src) return;
-    openLightbox(img.src);
+    if (!img) return;
+    if (!img.src) return;
+    openLightboxFromPanel(panel, img);
   });
 
-  // fermer le panel : ferme toutes les lineups dedans
   panel.querySelector(".close-btn").onclick = () => {
     panel.querySelectorAll(".lineup-item").forEach(item => removeOverlay(item.dataset.id));
     panel.remove();
+    refreshActiveMarkers();
     renumberType(firstLineup.type);
   };
 
   targetPanels.prepend(panel);
-
-  // panel simple : on ajoute l'image spot en dessous du titre
-  if (!throwKey) {
-    panel.querySelector("h2").innerHTML = `<span class="badge"></span>${firstLineup.name}`;
-    panel.insertAdjacentHTML("beforeend", `
-      <img class="stand-img" src="${firstLineup.images?.stand || ""}" alt="stand">
-    `);
-  }
-
-  appendLineupItem(panel, firstLineup);
   return panel;
 }
 
+function pickImageSrc(lu, preferred) {
+  const imgs = lu && lu.images ? lu.images : {};
+  const single = (imgs && (imgs.single || imgs.one)) || "";
+  const stand  = (imgs && imgs.stand) || "";
+  const aim    = (imgs && imgs.aim) || "";
+
+  // Important: don't let a missing stand image fall back to aim,
+  // otherwise you get duplicated aim images in panels.
+  if (preferred === "stand") return stand || single || "";
+  if (preferred === "aim")   return aim || stand || single || "";
+  return stand || aim || single || "";
+}
+
+// Spot image should never fall back to aim (otherwise you'll see aim twice: spot + aim)
+function pickSpotSrc(lu) {
+  const imgs = lu && lu.images ? lu.images : {};
+  const stand  = (imgs && imgs.stand) || "";
+  const single = (imgs && (imgs.single || imgs.one)) || "";
+  return stand || single || "";
+}
+
+function imgTag(cls, src, alt) {
+  const s = String(src || "").trim();
+  if (!s) return "";
+  return `<img class="${cls}" src="${s}" alt="${alt || ""}">`;
+}
+
+// Build lightbox gallery items from a given popup panel
+function openLightboxFromPanel(panel, clickedImgEl) {
+  if (!panel) return;
+
+  /** @type {{src:string,label:string}[]} */
+  const items = [];
+
+  // Spot (single)
+  const spot = panel.querySelector("img.spot-img");
+  if (spot && spot.src) items.push({ src: spot.src, label: "Spot" });
+
+  // Collect lineup ids from both the list and the nav (some UIs switch via nav)
+  const ids = [];
+  panel.querySelectorAll(".lineup-item[data-id]").forEach(el => {
+    const id = el.getAttribute("data-id");
+    if (id) ids.push(id);
+  });
+  panel.querySelectorAll(".lineup-nav-btn[data-id]").forEach(el => {
+    const id = el.getAttribute("data-id");
+    if (id) ids.push(id);
+  });
+
+  const seen = new Set();
+  for (const id of ids) {
+    if (seen.has(id)) continue;
+    seen.add(id);
+
+    const li = panel.querySelector(`.lineup-item[data-id="${CSS.escape(id)}"]`);
+    const badge = li?.querySelector(".badge")?.textContent?.trim() || "";
+    const domImg = li?.querySelector("img.aim-img");
+    const domSrc = String(domImg?.src || "").trim();
+
+    let src = domSrc;
+    if (!src) {
+      const lu = lineupsById.get(id);
+      src = String(pickImageSrc(lu, "aim") || "").trim();
+    }
+    if (!src) continue;
+
+    let label = badge;
+    if (!label) {
+      const navBtn = panel.querySelector(`.lineup-nav-btn[data-id="${CSS.escape(id)}"]`);
+      label = (navBtn?.textContent || navBtn?.title || "").trim();
+    }
+    items.push({ src, label: label || "Aim" });
+  }
+
+  // Stand (optional)
+  const stand = panel.querySelector("img.stand-img");
+  if (stand && stand.src) items.push({ src: stand.src, label: "Stand" });
+
+  // Determine start index based on clicked element
+  const clickedSrc = String(clickedImgEl?.src || "").trim();
+  let start = 0;
+  if (clickedSrc) {
+    const idx = items.findIndex(it => it.src === clickedSrc);
+    if (idx >= 0) start = idx;
+  }
+
+  openLightboxGallery(items, start);
+}
+
+
+function setActiveLineup(panel, lineupId) {
+  const items = Array.from(panel.querySelectorAll(".lineup-item"));
+  if (items.length === 0) return;
+
+  items.forEach(it => it.classList.toggle("is-active", it.dataset.id === lineupId));
+
+  const btns = Array.from(panel.querySelectorAll(".lineup-nav-btn"));
+  btns.forEach(b => b.classList.toggle("is-active", b.dataset.id === lineupId));
+}
+
+function ensureNavButton(panel, lineup) {
+  const nav = panel.querySelector(".lineup-nav");
+  if (!nav) return;
+
+  // avoid duplicates
+  if (nav.querySelector(`.lineup-nav-btn[data-id="${CSS.escape(lineup.id)}"]`)) return;
+
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "lineup-nav-btn";
+  btn.dataset.id = lineup.id;
+  btn.dataset.type = lineup.type || "";
+  btn.title = lineup.name || lineup.id || "";
+
+  const key = (lineup.target || lineup.id || "").toString();
+  btn.textContent = key;
+
+  btn.onclick = (e) => {
+    e.stopPropagation();
+    setActiveLineup(panel, lineup.id);
+  };
+
+  nav.appendChild(btn);
+}
+
+function enableWheelSwitch(panel) {
+  if (panel.dataset.wheelswitch === "1") return;
+  panel.dataset.wheelswitch = "1";
+
+  panel.addEventListener("wheel", (e) => {
+    // only when pointer is over the panel (not the page)
+    if (!panel.matches(":hover")) return;
+    // allow natural scroll inside nav if it overflows
+    const nav = panel.querySelector(".lineup-nav");
+    const overNav = nav && nav.matches(":hover");
+
+    const items = Array.from(panel.querySelectorAll(".lineup-item"));
+    if (items.length <= 1) return;
+
+    // prevent page scroll / map scroll
+    e.preventDefault();
+
+    // find active index
+    let idx = items.findIndex(it => it.classList.contains("is-active"));
+    if (idx < 0) idx = 0;
+
+    const dir = e.deltaY > 0 ? 1 : -1;
+    idx = (idx + dir + items.length) % items.length;
+
+    const nextId = items[idx].dataset.id;
+    if (nextId) setActiveLineup(panel, nextId);
+
+    // keep nav scrolled to active
+    const activeBtn = panel.querySelector(`.lineup-nav-btn.is-active`);
+    if (activeBtn && overNav) activeBtn.scrollIntoView({ block: "nearest" });
+  }, { passive: false });
+}
 function appendLineupItem(panel, lineup) {
   const list = panel.querySelector(".aim-list");
   if (!list) return;
@@ -859,37 +703,38 @@ function appendLineupItem(panel, lineup) {
   const item = document.createElement("div");
   item.className = "lineup-item";
   item.dataset.id = lineup.id;
-  item.dataset.type = lineup.type;
+  item.dataset.key = (lineup.target || lineup.id);
+  item.dataset.type = lineup.type || "";
 
   item.innerHTML = `
     <div class="lineup-item-head">
       <span class="badge"></span>
       <div class="lineup-item-title">
-        <div class="lineup-name">${lineup.name}</div>
-        <div class="lineup-desc">${lineup.description || ""}</div>
+        <div class="lineup-name">${escapeHtml(lineup.name || lineup.id)}</div>
+        <div class="lineup-desc">${escapeHtml(lineup.description || "")}</div>
       </div>
-      <button class="item-close" type="button">✕</button>
+      <button class="item-close" type="button" aria-label="Close">✕</button>
     </div>
-
-    <img class="aim-img" src="${lineup.images?.aim || ""}" alt="aim">
+    ${imgTag("aim-img", pickImageSrc(lineup,"aim"), "aim")}
   `;
 
   item.querySelector(".item-close").onclick = () => {
     removeOverlay(lineup.id);
     item.remove();
+
     if (panel.querySelectorAll(".lineup-item").length === 0) panel.remove();
+    refreshActiveMarkers();
     renumberType(lineup.type);
   };
 
-  // lightbox
-  item.querySelectorAll("img").forEach(img => {
-    if (img.getAttribute("src")) img.addEventListener("click", () => openLightbox(img.src));
-  });
-
   list.appendChild(item);
+
+  // if nothing selected yet, select the newly added item
+  const hasActive = panel.querySelector(".lineup-item.is-active");
+  if (!hasActive) setActiveLineup(panel, lineup.id);
 }
 
-
+// overlays (throw arrow + throw marker)
 function addOverlay(lineup, badgeNum) {
   if (!lineup.throw) return;
   if (overlays.has(lineup.id)) return;
@@ -925,8 +770,8 @@ function addOverlay(lineup, badgeNum) {
 
   const start  = { x: lineup.throw.x, y: lineup.throw.y };
   const target = { x: lineup.x,       y: lineup.y };
-
-  const end = shortenEndByPx(start, target, 10);
+  // Stop the line a bit before the target icon so it doesn't go "into" it
+  const end = shortenEndByPx(start, target, 22);
 
   const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
   line.setAttribute("x1", start.x);
@@ -940,9 +785,12 @@ function addOverlay(lineup, badgeNum) {
   overlay.appendChild(line);
 
   const throwEl = document.createElement("div");
-  throwEl.className = `throw-marker ${lineup.type}`;
+  throwEl.className = `throw-marker ${lineup.type || ""}`.trim();
   throwEl.style.left = lineup.throw.x + "%";
   throwEl.style.top  = lineup.throw.y + "%";
+
+  // group key for stacking labels at the same throw point
+  throwEl.dataset.throwpos = `${round1(lineup.throw.x)}|${round1(lineup.throw.y)}`;
 
   const label = document.createElement("div");
   label.className = "throw-label";
@@ -953,6 +801,7 @@ function addOverlay(lineup, badgeNum) {
   container.appendChild(throwEl);
 
   overlays.set(lineup.id, { line, throwEl, label, type: lineup.type });
+  layoutThrowStacks();
 }
 
 function removeOverlay(lineupId) {
@@ -961,42 +810,59 @@ function removeOverlay(lineupId) {
   o.line.remove();
   o.throwEl.remove();
   overlays.delete(lineupId);
+  layoutThrowStacks();
 }
 
 function renumberType(type) {
   const prefix = type === "smoke" ? "S" : (type === "flash" ? "F" : "M");
-
-  const items = Array.from(document.querySelectorAll(`.lineup-item[data-type="${type}"]`));
+  const items = Array.from(document.querySelectorAll(`.lineup-item[data-type="${CSS.escape(type)}"]`));
 
   items.forEach((item, index) => {
     const num = index + 1;
     const id = item.dataset.id;
-
-    // badge dans l'item
     const badge = item.querySelector(".badge");
     if (badge) badge.textContent = `${prefix}${num}`;
-
-    // label sur le point de lancement (overlay)
     const o = overlays.get(id);
     if (o && o.label) o.label.textContent = `${prefix}${num}`;
   });
+
+  layoutThrowStacks();
 }
 
 
-// ==========================
-// 9) Utils géométrie
-// ==========================
-function getMapRect() {
-  return map.getBoundingClientRect();
+function layoutThrowStacks() {
+  // Stack labels for throw points that share the same coordinates
+  const all = Array.from(document.querySelectorAll(".throw-marker"));
+  const groups = new Map();
+
+  for (const el of all) {
+    const k = el.dataset.throwpos || "";
+    if (!k) continue;
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(el);
+  }
+
+  for (const els of groups.values()) {
+    els.sort((a, b) => {
+      const ta = (a.querySelector(".throw-label")?.textContent || "");
+      const tb = (b.querySelector(".throw-label")?.textContent || "");
+      return ta.localeCompare(tb, undefined, { numeric: true });
+    });
+
+    els.forEach((el, i) => {
+      const lab = el.querySelector(".throw-label");
+      if (!lab) return;
+      lab.style.top = (-6 + i * 12) + "px";
+      lab.style.left = "14px";
+    });
+  }
 }
-function percentToPx(p, axis) {
-  const rect = getMapRect();
-  return (axis === "x" ? rect.width : rect.height) * (p / 100);
-}
-function pxToPercent(px, axis) {
-  const rect = getMapRect();
-  return 100 * (px / (axis === "x" ? rect.width : rect.height));
-}
+
+
+// geometry utils
+function getMapRect() { return map.getBoundingClientRect(); }
+function percentToPx(p, axis) { const r = getMapRect(); return (axis === "x" ? r.width : r.height) * (p / 100); }
+function pxToPercent(px, axis) { const r = getMapRect(); return 100 * (px / (axis === "x" ? r.width : r.height)); }
 function shortenEndByPx(start, end, offsetPx) {
   const sx = percentToPx(start.x, "x");
   const sy = percentToPx(start.y, "y");
@@ -1011,86 +877,315 @@ function shortenEndByPx(start, end, offsetPx) {
   const ux = vx / len;
   const uy = vy / len;
 
-  return {
-    x: pxToPercent(ex - ux * offsetPx, "x"),
-    y: pxToPercent(ey - uy * offsetPx, "y")
-  };
+  return { x: pxToPercent(ex - ux * offsetPx, "x"), y: pxToPercent(ey - uy * offsetPx, "y") };
 }
-function round1(n) { return Math.round(n * 10) / 10; } // arrondi 0.1%
+function round1(n) { return Math.round(n * 10) / 10; }
 
-// Clé "spot" basée uniquement sur le point de lancement (+ side si tu veux)
 function getSpotKey(lu) {
   if (!lu.throw) return null;
-
-  // Si tu as un champ manuel (recommandé si tu veux 0 surprise)
   if (lu.spotKey) return lu.spotKey;
-
-  // Automatique: uniquement throw.x / throw.y (pas le type)
   return `${lu.side}|${round1(lu.throw.x)}|${round1(lu.throw.y)}`;
 }
-
 function getThrowKey(lu) {
   if (!lu.throw) return null;
   return `${lu.type}|${lu.side}|${round1(lu.throw.x)}|${round1(lu.throw.y)}`;
 }
 
-// ==========================
-// 10) Executes (buttons)
-// ==========================
+// --------------------------
+// 10) Executes
+// --------------------------
 function closeAllPanels() {
   document.querySelectorAll(".panel .close-btn").forEach(btn => btn.click());
+  refreshActiveMarkers();
 }
 
 function openExecute(exec) {
+  if (!exec || !Array.isArray(exec.items)) return;
   exec.items.forEach(id => {
     const lu = lineupsById.get(id);
     if (!lu) return console.warn("Execute: lineup introuvable:", id);
-
-    openPopup(lu, {
-      forceSide: "left",
-      mode: "execute"
-    });
+    openPopup(lu, { forceSide: "left", mode: "execute" });
   });
 }
 
-
 function renderExecutes() {
-  if (!executesBox) return;
+  if (!executesBox || !execGrid) return;
 
-  const grid = document.getElementById("exec-grid");
-  const clearBtn = document.getElementById("exec-clear");
+  // Clear button always works
+  if (execClear) execClear.onclick = closeAllPanels;
 
-  // Pas d'executes sur cette map
-  if (typeof executes === "undefined" || !Array.isArray(executes) || executes.length === 0) {
+  if (!Array.isArray(executes) || executes.length === 0) {
     executesBox.style.display = "none";
     return;
   }
 
   executesBox.style.display = "block";
-  if (grid) grid.innerHTML = "";
-
-  if (clearBtn) {
-    clearBtn.onclick = closeAllPanels;
-    clearBtn.style.display = "inline-flex";
-  }
+  execGrid.innerHTML = "";
 
   executes.forEach(exec => {
     const btn = document.createElement("button");
     btn.className = "exec-btn";
-    btn.type = "button";
     btn.textContent = exec.name || exec.id;
     btn.onclick = () => openExecute(exec);
-    (grid || executesBox).appendChild(btn);
+    execGrid.appendChild(btn);
   });
 }
 
+// --------------------------
+// 11) Groups
+// --------------------------
+const GROUPS_KEY = "cs2_user_groups_v2";
+let userGroups = [];
 
-// ==========================
-// 11) Init
-// ==========================
-ensureUserGroupsUI();
+function loadGroups() {
+  try { userGroups = JSON.parse(localStorage.getItem(GROUPS_KEY) || "[]"); }
+  catch { userGroups = []; }
+  if (!Array.isArray(userGroups)) userGroups = [];
+}
+
+function saveGroups() {
+  localStorage.setItem(GROUPS_KEY, JSON.stringify(userGroups));
+}
+
+function ensureGroupsDock() {
+  if (groupsDock && groupsList && addGroupBtn) return;
+
+  groupsDock = document.createElement("aside");
+  groupsDock.id = "groups-dock";
+  groupsDock.className = "groups-dock";
+  groupsDock.innerHTML = `
+    <div class="groups-title">My Groups</div>
+    <div id="user-groups-list" class="groups-list"></div>
+    <button id="add-group" class="groups-create" type="button">+ Create group</button>
+  `;
+  document.body.appendChild(groupsDock);
+  groupsList = document.getElementById("user-groups-list");
+  addGroupBtn = document.getElementById("add-group");
+}
+
+function renderGroups() {
+  ensureGroupsDock();
+  if (!groupsList) return;
+
+  groupsList.innerHTML = "";
+
+  if (userGroups.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "groups-empty";
+    empty.textContent = 'No groups yet. Click "Create group".';
+    groupsList.appendChild(empty);
+    return;
+  }
+
+  userGroups.forEach(group => {
+    const row = document.createElement("div");
+    row.className = "group-row";
+
+    const nameBtn = document.createElement("button");
+    nameBtn.type = "button";
+    nameBtn.className = "group-name";
+    nameBtn.textContent = group.name || "Unnamed";
+    nameBtn.onclick = () => openGroup(group);
+
+    const editBtn = document.createElement("button");
+    editBtn.type = "button";
+    editBtn.className = "icon-btn";
+    editBtn.textContent = "✎";
+    editBtn.title = "Edit";
+    editBtn.onclick = () => editGroup(group.id);
+
+    const delBtn = document.createElement("button");
+    delBtn.type = "button";
+    delBtn.className = "icon-btn danger";
+    delBtn.textContent = "🗑";
+    delBtn.title = "Delete";
+    delBtn.onclick = () => deleteGroup(group.id);
+
+    row.appendChild(nameBtn);
+    row.appendChild(editBtn);
+    row.appendChild(delBtn);
+    groupsList.appendChild(row);
+  });
+}
+
+function openGroup(group) {
+  if (!group || !Array.isArray(group.items)) return;
+  group.items.forEach(id => {
+    const lu = lineupsById.get(id);
+    if (lu) openPopup(lu, { mode: "group" });
+  });
+}
+
+function deleteGroup(groupId) {
+  const g = userGroups.find(x => x.id === groupId);
+  if (!g) return;
+  openModal({
+    title: "Delete group",
+    body: `<div class="ui-text">Delete "<b>${escapeHtml(g.name)}</b>" ?</div>`,
+    actions: [
+      { label: "Cancel", className: "ui-btn ui-btn-weak", onClick: closeModal },
+      { label: "Delete", className: "ui-btn ui-btn-danger", onClick: () => {
+          userGroups = userGroups.filter(x => x.id !== groupId);
+          saveGroups();
+          renderGroups();
+          closeModal();
+        }
+      }
+    ]
+  });
+}
+
+function createOrEditGroupModal(existing) {
+  const isEdit = !!existing;
+  const initialName = existing?.name || "";
+  const initialSelected = new Set(existing?.items || []);
+
+  // Step 1: name
+  openModal({
+    title: isEdit ? "Edit group" : "Create group",
+    body: `
+      <label class="ui-field">
+        <div class="ui-label">Group name</div>
+        <input id="g-name" class="ui-input" value="${escapeHtml(initialName)}" placeholder="e.g. B Retake smokes">
+      </label>
+    `,
+    actions: [
+      { label: "Cancel", className: "ui-btn ui-btn-weak", onClick: closeModal },
+      { label: "Next", className: "ui-btn ui-btn-primary", onClick: () => {
+          const name = (document.getElementById("g-name")?.value || "").trim();
+          openSelectLineupsModal({
+            title: "Select lineups",
+            selected: initialSelected,
+            onDone: (sel) => {
+              const items = Array.from(sel);
+              if (!name) return;
+              if (isEdit) {
+                existing.name = name;
+                existing.items = items;
+              } else {
+                userGroups.push({ id: crypto.randomUUID(), name, items });
+              }
+              saveGroups();
+              renderGroups();
+              closeModal();
+            }
+          });
+        }
+      }
+    ]
+  });
+}
+
+function editGroup(groupId) {
+  const g = userGroups.find(x => x.id === groupId);
+  if (!g) return;
+  createOrEditGroupModal(g);
+}
+
+function openSelectLineupsModal({ title, selected, onDone }) {
+  // Source list (do NOT mutate the global `lineups` const)
+  const sourceLineups = Array.isArray(lineups) ? lineups : [];
+
+  // UI
+  const body = document.createElement("div");
+  body.className = "select-wrap";
+
+  body.innerHTML = `
+    <div class="select-top">
+      <div class="select-search">
+        <div class="ui-label">Search</div>
+        <input class="ui-input" id="sel-q" placeholder="Search by name / variant / id...">
+      </div>
+      <div class="select-filters">
+        <button class="chip active" data-type="smoke">Smoke</button>
+        <button class="chip active" data-type="flash">Flash</button>
+        <button class="chip active" data-type="molotov">Molotov</button>
+      </div>
+    </div>
+    <div class="select-list" id="sel-list"></div>
+  `;
+
+  const actions = [
+    { label: "Cancel", className: "ui-btn ui-btn-weak", onClick: closeModal },
+    { label: "Done", className: "ui-btn ui-btn-primary", onClick: () => onDone && onDone(selected) }
+  ];
+
+  openModal({ title, body: "", actions });
+  uiModalBody.innerHTML = "";
+  uiModalBody.appendChild(body);
+
+  const q = body.querySelector("#sel-q");
+  const listEl = body.querySelector("#sel-list");
+  const chips = Array.from(body.querySelectorAll(".chip"));
+
+  function activeTypes() {
+    const a = chips.filter(c => c.classList.contains("active")).map(c => c.dataset.type);
+    return a.length ? a : ["smoke","flash","molotov"];
+  }
+
+  chips.forEach(ch => ch.addEventListener("click", () => { ch.classList.toggle("active"); render(); }));
+
+  function render() {
+    const query = (q.value || "").trim().toLowerCase();
+    const types = new Set(activeTypes());
+
+    const filtered = sourceLineups
+      .filter(lu => lu && lu.id)
+      .filter(lu => types.has(lu.type))
+      .filter(lu => {
+        if (!query) return true;
+        const hay = `${lu.name||""} ${lu.variant||""} ${lu.id||""}`.toLowerCase();
+        return hay.includes(query);
+      })
+      .sort((a,b) => (a.name||a.id).localeCompare(b.name||b.id));
+
+    listEl.innerHTML = "";
+    filtered.forEach(lu => {
+      const row = document.createElement("button");
+      row.type = "button";
+      row.className = "select-row";
+      row.dataset.id = lu.id;
+
+      const isSel = selected.has(lu.id);
+      row.classList.toggle("selected", isSel);
+
+      row.innerHTML = `
+        <div class="select-row-main">
+          <div class="select-row-name">${escapeHtml(lu.name || lu.id)}</div>
+          <div class="select-row-sub">${escapeHtml((lu.variant ? `${lu.variant} · ` : "") + `${lu.side||""} ${lu.type||""}`)}</div>
+        </div>
+        <div class="type-pill ${lu.type}">${escapeHtml((lu.type||"").toUpperCase())}</div>
+      `;
+
+      row.addEventListener("click", () => {
+        if (selected.has(lu.id)) selected.delete(lu.id);
+        else selected.add(lu.id);
+        row.classList.toggle("selected", selected.has(lu.id));
+      });
+
+      listEl.appendChild(row);
+    });
+  }
+
+  q.addEventListener("input", render);
+  render();
+}
+
+function wireGroups() {
+  ensureGroupsDock();
+  loadGroups();
+  renderGroups();
+
+  if (addGroupBtn) {
+    addGroupBtn.onclick = () => createOrEditGroupModal(null);
+  }
+}
+
+// --------------------------
+// 12) Init
+// --------------------------
 buildMarkers();
 updateFilters();
 renderExecutes();
-renderUserGroups();
-bindAddGroupButton();
+wireGroups();
+refreshActiveMarkers();

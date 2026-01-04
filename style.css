@@ -1,649 +1,277 @@
-body {
-  margin: 0;
-  background: #111;
-  color: white;
-  font-family: Arial, sans-serif;
-  text-align: center;
-  padding: 0 420px; /* desktop */
+/* =========================================================
+   CS2 Lineups — unified style (FIXED)
+   - Restores clean pills
+   - Restores executes + groups
+   - Keeps panels layout
+   - Supports marker icons (targets) + small cross for launch points
+   ========================================================= */
+
+:root{
+  --bg: #0b0b0f;
+  --panel: rgba(10, 10, 14, 0.72);
+  --border: rgba(255,255,255,0.12);
+  --border2: rgba(255,255,255,0.16);
+  --text: rgba(255,255,255,0.92);
+  --muted: rgba(255,255,255,0.62);
+
+  --smoke: #6fa8ff;
+  --flash: #ffd966;
+  --molly: #ff8c42;
+
+  --accent: rgba(99,102,241,0.95);
+
+  --icons-smoke: url("assets/icons/smoke.png");
+  --icons-flash: url("assets/icons/flash.png");
+  --icons-molotov: url("assets/icons/molotov.png");
 }
 
+*{ box-sizing: border-box; }
 
-#map-container {
+body{
+  margin:0;
+  background: radial-gradient(1200px 600px at 50% 0%, rgba(99,102,241,0.15), transparent 55%),
+              radial-gradient(900px 500px at 15% 30%, rgba(0,255,200,0.07), transparent 55%),
+              radial-gradient(800px 500px at 85% 25%, rgba(255,180,0,0.06), transparent 60%),
+              var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  text-align: center;
+}
+
+/* --------------------------
+   Home (index.html)
+   -------------------------- */
+.home-page{
+  padding: 20px 18px 34px;
+}
+
+.app-header{
+  max-width: 980px;
+  margin: 0 auto 18px;
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.brand{ text-align:left; }
+.brand-title{
+  font-weight: 900;
+  font-size: 34px;
+  letter-spacing: 0.5px;
+}
+.brand-sub{
+  color: var(--muted);
+  font-weight: 700;
+  margin-top: 4px;
+  font-size: 13px;
+}
+
+.btn-primary{
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border2);
+  background: rgba(99,102,241,0.18);
+  color: white;
+  font-weight: 800;
+  cursor:pointer;
+  backdrop-filter: blur(8px);
+}
+.btn-primary:hover{ filter: brightness(1.12); }
+
+.home-wrap{ max-width: 980px; margin: 0 auto; }
+
+.map-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 22px;
+  padding: 10px 0 0;
+}
+
+.map-card{
+  position:relative;
+  width:100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 18px;
+  overflow:hidden;
+
+  background: #000;
+  border: 1px solid var(--border);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.45);
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  text-decoration:none;
+  color:white;
+  cursor:pointer;
+  transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
+}
+
+.map-card img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit: cover;
+  display:block;
+}
+
+.map-card::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.85) 100%);
+}
+
+.map-card:hover{
+  transform: translateY(-4px);
+  filter: brightness(1.06);
+  box-shadow: 0 22px 55px rgba(0,0,0,0.55);
+}
+
+.map-name{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom: 14px;
+  z-index: 2;
+  text-align:center;
+  font-weight: 900;
+  font-size: 22px;
+  text-shadow: 0 3px 10px rgba(0,0,0,0.85);
+}
+
+/* --------------------------
+   Viewer layout
+   - room for fixed panels (400px each)
+   -------------------------- */
+.viewer-page{
+  padding: 0 420px; /* desktop: leave room for panels */
+}
+
+#page-title{
+  margin: 16px 0 4px;
+  font-weight: 900;
+  font-size: 38px;
+  letter-spacing: 0.4px;
+}
+
+/* Map container */
+#map-container{
   position: relative;
-  width: min(800px, 100%);
+  width: min(820px, 100%);
   margin: 0 auto;
 }
-#map {
-  width: 100%;
-  height: auto;
-  display: block;
+#map{
+  width:100%;
+  height:auto;
+  display:block;
+}
+#map-overlay{
+  position:absolute;
+  left:0; top:0;
+  width:100%; height:100%;
+  pointer-events:none;
 }
 
-.marker {
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  transform: translate(-50%, -50%) rotate(45deg);
-  cursor: pointer;
-  color: #ffffff;
-}
-
-/* 2 traits couleur, avec outline via box-shadow (net, pas flou) */
-.marker::before,
-.marker::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  background: currentColor;
-
-  /* outline noire nette */
-  box-shadow:
-    0 0 0 1px #000;
-  border-radius: 2px;
-}
-
-/* vertical */
-.marker::before {
-  width: 1.2px;
-  height: 16px;
-}
-
-/* horizontal */
-.marker::after {
-  width: 16px;
-  height: 1.2px;
-}
-
-.marker:hover {
-  filter: brightness(1.25);
-}
-
-
-.smoke {
-  color: #6fa8ff; /* bleu clair */
-}
-
-.flash {
-  color: #ffd966; /* jaune doux */
-}
-
-.molotov {
-  color: #ff8c42; /* orange */
-}
-
-#popup {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: 380px;        /* largeur ajustable */
-  height: 100vh;       /* pleine hauteur */
-  background: #1a1a1a;
-  padding: 20px;
-  border-left: 2px solid #333;
-  overflow-y: auto;    /* scroll si contenu long */
-  z-index: 1000;
-}
-
-.hidden {
-  display: none;
-}
-
-button {
-  margin-top: 10px;
-  padding: 8px 12px;
-  cursor: pointer;
-}
-
-#coords {
-  margin-top: 10px;
+#coords{
+  margin: 10px 0 18px;
   font-size: 14px;
-  color: #aaa;
+  color: var(--muted);
 }
 
-#popup-image {
-  width: 100%;
-  margin-top: 12px;
-  border-radius: 8px;
+/* Back button */
+#back-btn{
+  position: fixed;
+  top: 12px;
+  left: 420px;
+  z-index: 2500;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(0,0,0,0.55);
+  border: 1px solid var(--border);
+  color: white;
+  text-decoration: none;
+  font-weight: 800;
+  backdrop-filter: blur(8px);
 }
+#back-btn:hover{ filter: brightness(1.15); }
 
-/* Panneaux à gauche et à droite */
-#panels-left, #panels-right {
+/* --------------------------
+   Side panels
+   -------------------------- */
+#panels-left, #panels-right{
   position: fixed;
   top: 0;
   width: 400px;
   height: 100vh;
   overflow-y: auto;
-  background: #111;
-  z-index: 1000;
+  background: rgba(10,10,14,0.86);
+  border: 1px solid rgba(255,255,255,0.10);
+  backdrop-filter: blur(10px);
+  z-index: 2000;
+  padding-top: 8px;
 }
 
-#panels-left {
-  left: 0;
-  border-right: 2px solid #333;
+#panels-left{
+  left:0;
+  border-right: 1px solid rgba(255,255,255,0.10);
+}
+#panels-right{
+  right:0;
+  border-left: 1px solid rgba(255,255,255,0.10);
 }
 
-#panels-right {
-  right: 0;
-  border-left: 2px solid #333;
-}
-
-/* Pour que la map ne soit pas cachée derrière les panneaux */
-#map-container {
-  position: relative;
-  width: 800px;
-  margin: 0 auto;
-}
-
-/* Optionnel : si tu veux plus de place, tu peux réduire la map ou les panneaux */
-
-.panel {
-  background: #1e1e1e;
-  padding: 15px;
+.panel{
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.10);
+  padding: 12px;
   margin: 10px;
-  border-radius: 10px;
+  border-radius: 14px;
 }
 
-.panel h2 {
-  margin-top: 0;
-}
-
-.panel img {
-  width: 100%;
-  border-radius: 8px;
-  margin-top: 10px;
-}
-
-.close-btn {
-  float: right;
-  cursor: pointer;
-  color: #aaa;
-}
-.close-btn:hover {
-  color: white;
-}
-
-.panel h4 {
-  margin: 12px 0 5px;
-  font-size: 14px;
-  color: #bbb;
-  text-transform: uppercase;
-}
-
-#filters {
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-#filters label {
-  margin: 0 10px;
-  font-size: 14px;
-  color: #ccc;
-}
-
-#filters input {
-  margin-right: 5px;
-}
-
-.sep {
-  margin: 0 10px;
-  color: #555;
-}
-
-
-.throw-marker::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  background: #fff;
-}
-
-/* L’overlay svg (déjà chez toi, garde-le) */
-#map-overlay {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-/* Point de lancement (persistant, un par panel ouvert) */
-.throw-marker {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 25;
-  pointer-events: none;
-
-  /* Use a CSS variable so label stays colored even if other rules change */
-  --tcol: #ffffff;
-  background: var(--tcol);
-  box-shadow: 0 0 10px var(--tcol);
-}
-
-/* Couleur du point throw selon type */
-.throw-marker.smoke   { --tcol: #6fa8ff; }
-.throw-marker.flash   { --tcol: #ffd966; }
-.throw-marker.molotov { --tcol: #ff8c42; }
-
-/* Petit numéro sur le point throw */
-.throw-label {
-  position: absolute;
-  left: 13px;
-  top: -3px;
-  font-size: 10px;
+.panel h2{
+  margin: 0 0 10px;
   font-weight: 900;
-  color: #0b0b0b;
-  background: var(--tcol);
-  padding: 1px 6px;
-  border-radius: 999px;
-  pointer-events: none;
-  border: 1px solid rgba(0,0,0,0.65);
-  box-shadow: 0 0 0 1px #000, 0 0 10px var(--tcol);
+  font-size: 26px;
 }
 
-.throw-marker.flash .throw-label { color: #1a1a1a; }
-
-/* Optionnel : numéro dans le titre du panel */
-.badge {
-  display: inline-block;
-  min-width: 22px;
-  text-align: center;
-  padding: 2px 6px;
-  margin-right: 8px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.12);
-  font-weight: 700;
+.close-btn{
+  float:right;
+  cursor:pointer;
+  color: rgba(255,255,255,0.72);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  padding: 6px 10px;
+  border-radius: 12px;
 }
+.close-btn:hover{ filter: brightness(1.15); color: white; }
 
-/* Badge colors by type (same as cross colors) */
-.lineup-item[data-type="smoke"] .badge,
-.panel[data-type="smoke"] .badge { background: #6fa8ff; color: #0b0b0b; }
-
-.lineup-item[data-type="flash"] .badge,
-.panel[data-type="flash"] .badge { background: #ffd966; color: #1a1a1a; }
-
-.lineup-item[data-type="molotov"] .badge,
-.panel[data-type="molotov"] .badge { background: #ff8c42; color: #0b0b0b; }
-
-#lightbox {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.85);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 3000;
-  padding: 30px;
-}
-
-#lightbox.hidden {
-  display: none;
-}
-
-#lightbox-img {
-  max-width: 95vw;
-  max-height: 95vh;
-  border-radius: 10px;
-}
-
-/* petit bonus : curseur sur les images cliquables */
-.panel img {
+.panel img{
+  width:100%;
+  border-radius: 12px;
+  margin-top: 10px;
   cursor: zoom-in;
 }
 
-@media (max-width: 900px) {
-  body {
-    padding: 12px; /* plus de paddings énormes */
-  }
-
-  /* Les panneaux deviennent des drawers en bas */
-  #panels-left, #panels-right {
-    position: fixed;
-    left: 0;
-    right: 0;
-    width: auto;
-    height: 42vh;          /* hauteur du drawer */
-    top: auto;
-    bottom: 0;
-    border-left: none;
-    border-right: none;
-    border-top: 2px solid #333;
-    background: #111;
-    z-index: 1000;
-  }
-
-  /* On empile : smokes + autres */
-  #panels-left {
-    bottom: 42vh;          /* drawer au-dessus */
-    height: 30vh;
-  }
-
-  #panels-right {
-    bottom: 0;
-    height: 42vh;
-  }
-
-  /* Map prend toute la largeur */
-  #map-container {
-    width: 100%;
-    max-width: 100%;
-  }
-
-  /* Images dans panels */
-  .panel img {
-    max-width: 100%;
-    height: auto;
-  }
-
-  /* Filtre plus lisible */
-  #filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 12px;
-    justify-content: center;
-    margin-bottom: 10px;
-  }
-
-  .sep {
-    display: none;
-  }
-}
-@media (max-width: 900px) {
-  /* Cache les panneaux tant qu'ils sont vides */
-  #panels-left:empty,
-  #panels-right:empty {
-    display: none !important;
-  }
-
-  /* Quand ils ne sont pas vides, on les affiche */
-  #panels-left,
-  #panels-right {
-    display: block;
-  }
-}
-@media (max-width: 900px) {
-  /* la map garde de la place en bas quand les panneaux sont ouverts */
-  body {
-    padding-bottom: 45vh; /* ajuste si besoin */
-  }
-}
-
-/* Description des lineups */
-.panel p {
-  color: #4cff4c;              /* vert bien visible */
-  font-weight: 600;
-  background: rgba(76, 255, 76, 0.08); /* léger fond vert */
-  padding: 8px 10px;
-  border-left: 4px solid #4cff4c;
-  border-radius: 6px;
-  margin: 10px 0 14px;
-}
-
-#chooser {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 4000;
-  padding: 16px;
-}
-#chooser.hidden { display: none; }
-
-#chooser-box {
-  width: min(420px, 95vw);
-  background: #1e1e1e;
-  border: 1px solid #333;
-  border-radius: 12px;
-  padding: 14px;
-  text-align: left;
-}
-
-#chooser-title {
-  font-weight: 700;
-  margin-bottom: 10px;
-}
-
-#chooser-list button {
-  width: 100%;
-  text-align: left;
-  padding: 10px 12px;
-  margin: 6px 0;
-  border-radius: 10px;
-  border: 1px solid #333;
-  background: #151515;
-  color: white;
-  cursor: pointer;
-}
-#chooser-list button:hover {
-  filter: brightness(1.15);
-}
-
-#chooser-close {
-  width: 100%;
+/* Aim list connector */
+.aim-list{
   margin-top: 8px;
-}
-
-#chooser {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.65);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999; /* PLUS HAUT que panels / lightbox */
-}
-#chooser.hidden {
-  display: none;
-}
-
-.index-editor-link{
-  display:inline-block;
-  margin: 6px 0 18px;
-  color:#8b5cf6;
-  text-decoration: underline;
-  font-weight: 700;
-}
-.index-editor-link:hover{
-  filter: brightness(1.15);
-}
-
-/* ==========================
-   Map cards (square icons)
-   ========================== */
-
-.map-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 24px;
-  padding: 24px;
-}
-
-.map-card {
-  position: relative;
-  aspect-ratio: 1 / 1;          /* 🔑 carré */
-  width: 100%;
-
-  border-radius: 18px;
-  overflow: hidden;
-
-  background: #000;
-  border: 1px solid #1f2937;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.map-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-}
-
-/* Image icône */
-.map-card img {
-  position: absolute;
-  inset: 0;
-
-  width: 100%;
-  height: 100%;
-  object-fit: cover;            /* 🔑 remplit bien le carré */
-}
-
-/* Overlay gradient (lisibilité du texte) */
-.map-card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0,0,0,0) 40%,
-    rgba(0,0,0,0.85) 100%
-  );
-}
-
-/* Nom de la map */
-.map-card .map-name {
-  position: absolute;
-  bottom: 18px;
-  left: 0;
-  right: 0;
-
-  text-align: center;
-  font-size: 22px;
-  font-weight: 600;
-  color: #fff;
-  z-index: 2;
-}
-
-
-#back-btn {
-  position: fixed;              /* ⬅️ clé du fix */
-  top: 12px;
-  left: 400px;                  /* largeur exacte du panneau gauche */
-  z-index: 2000;
-
-  padding: 8px 10px;
-  border-radius: 10px;
-  background: rgba(0,0,0,0.6);
-  border: 1px solid rgba(255,255,255,0.15);
-  color: white;
-  text-decoration: none;
-  font-weight: 700;
-  backdrop-filter: blur(4px);
-}
-
-#back-btn:hover {
-  filter: brightness(1.15);
-}
-
-
-@media (min-width: 901px) {
-  #back-btn {
-    left: 420px; /* 400 + petit gap */
-  }
-}
-
-@media (max-width: 900px) {
-  #back-btn {
-    left: 12px;
-    top: 12px;
-  }
-}
-
-#executes {
-  position: fixed;
-  left: calc(400px + 8px); /* 👈 décale légèrement à droite du panneau */
-  bottom: 12px;
-  z-index: 2500;
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  max-width: 520px;
-}
-
-.exec-btn {
-  padding: 8px 10px;
-  border-radius: 10px;
-  background: rgba(0,0,0,0.6);
-  border: 1px solid rgba(255,255,255,0.15);
-  color: white;
-  font-weight: 700;
-  cursor: pointer;
-  backdrop-filter: blur(4px);
-}
-
-.exec-btn:hover {
-  filter: brightness(1.15);
-}
-
-@media (max-width: 900px) {
-  #executes {
-    left: 12px;     /* mobile : plus de panneau gauche fixe */
-    right: 12px;
-    max-width: none;
-  }
-}
-
-/* Boutons execute (par défaut) */
-.exec-btn {
-  padding: 8px 12px;
-  border-radius: 10px;
-  background: rgba(0,0,0,0.6);
-  border: 1px solid rgba(255,255,255,0.15);
-  color: white;
-  font-weight: 700;
-  cursor: pointer;
-  backdrop-filter: blur(4px);
-}
-
-.exec-btn:hover {
-  filter: brightness(1.15);
-}
-
-/* ===== CLEAR (différent, plus discret) ===== */
-.exec-clear {
-  padding: 5px 9px;              /* plus petit */
-  font-size: 12px;
-  font-weight: 600;
-  opacity: 0.65;
-  border-style: dashed;
-  background: rgba(255,255,255,0.05);
-}
-
-.exec-clear:hover {
-  opacity: 1;
-  background: rgba(255,80,80,0.15); /* petit warning visuel */
-  border-color: rgba(255,80,80,0.6);
-}
-
-.aim-list {
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
+  display:flex;
+  flex-direction:column;
   gap: 10px;
-  position: relative;
+  position:relative;
   padding-left: 14px;
 }
-
-/* ligne de connexion */
-.aim-list::before {
-  content: "";
-  position: absolute;
+.aim-list::before{
+  content:"";
+  position:absolute;
   left: 6px;
   top: 6px;
   bottom: 6px;
@@ -652,638 +280,894 @@ button {
   border-radius: 2px;
 }
 
-.lineup-item {
-  background: #151515;
-  border: 1px solid #2a2a2a;
-  border-radius: 10px;
+.lineup-item{
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 12px;
   padding: 10px;
   position: relative;
+  text-align:left;
 }
-
-/* petit point sur la ligne */
-.lineup-item::before {
-  content: "";
-  position: absolute;
+.lineup-item::before{
+  content:"";
+  position:absolute;
   left: -14px;
   top: 18px;
   width: 10px;
   height: 10px;
   border-radius: 999px;
-  background: rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.22);
 }
 
-.lineup-item-head {
-  display: flex;
-  align-items: flex-start;
+.lineup-item-head{
+  display:flex;
+  align-items:flex-start;
   gap: 10px;
 }
 
-.lineup-item-title {
-  flex: 1;
-}
-
-.lineup-name {
-  font-weight: 800;
-}
-
-.lineup-desc {
+.lineup-item-title{ flex:1; }
+.lineup-name{ font-weight: 900; }
+.lineup-desc{
   margin-top: 4px;
   color: #4cff4c;
-  font-weight: 600;
+  font-weight: 800;
   font-size: 13px;
 }
 
-.item-close {
+.item-close{
   background: transparent;
   border: 0;
-  color: #aaa;
+  color: rgba(255,255,255,0.65);
   cursor: pointer;
   font-size: 16px;
   line-height: 1;
 }
-.item-close:hover { color: white; }
+.item-close:hover{ color: white; }
 
-.spot-img {
-  pointer-events: auto;
-  cursor: zoom-in;
-}
-/* ===== Editor ===== */
-.editor-top{
-  display:flex; gap:10px; flex-wrap:wrap;
-  align-items:center; justify-content:center;
-  padding:10px 12px;
-}
-
-.editor-layout{
-  display:grid;
-  grid-template-columns: 420px 1fr;
-  gap:14px;
-  padding:12px;
-  align-items:start;
-}
-
-.editor-left, .editor-right{
-  background:#141414;
-  border:1px solid #2a2a2a;
-  border-radius:14px;
-  padding:12px;
-}
-
-.editor-actions{ display:flex; gap:8px; flex-wrap:wrap; margin:10px 0; }
-.editor-input{
-  width:100%;
-  padding:8px 10px;
-  border-radius:10px;
-  border:1px solid #333;
-  background:#0f0f0f;
-  color:white;
-}
-.editor-btn{
-  padding:8px 10px;
-  border-radius:10px;
-  border:1px solid rgba(255,255,255,0.15);
-  background:rgba(255,255,255,0.08);
-  color:white;
-  font-weight:700;
-  cursor:pointer;
-}
-.editor-btn:hover{ filter:brightness(1.15); }
-.editor-btn-weak{ opacity:0.7; font-weight:600; }
-.editor-btn-danger{ background: rgba(255,80,80,0.12); border-color: rgba(255,80,80,0.35); }
-
-.editor-status{ color:#4cff4c; font-weight:700; }
-.editor-hint{ color:#aaa; font-size:13px; }
-
-.editor-list{ display:flex; flex-direction:column; gap:8px; }
-.editor-row{
-  background:#0f0f0f;
-  border:1px solid #2a2a2a;
-  padding:10px;
-  border-radius:12px;
-  cursor:pointer;
-}
-.editor-row:hover{ filter:brightness(1.08); }
-.editor-row.active{ outline:2px solid rgba(111,168,255,0.45); }
-
-.editor-row-title{ font-weight:800; }
-.editor-row-sub{ color:#aaa; font-size:12px; margin-top:3px; }
-
-.editor-grid{
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap:10px;
-}
-.editor-grid label{ display:flex; flex-direction:column; gap:6px; color:#ccc; font-size:12px; }
-
-.editor-mapbox{
-  position:relative;
-  width: min(900px, 100%);
-  margin: 8px auto 0;
-  border-radius:14px;
-  overflow:hidden;
-  border:1px solid #2a2a2a;
-}
-#ed-mapimg{ width:100%; display:block; }
-
-.ed-dot{
-  position:absolute;
-  width:12px; height:12px;
-  transform: translate(-50%, -50%);
-  border-radius:999px;
-  border:2px solid #000;
-  pointer-events:none;
-}
-.ed-dot-target{ background:#6fa8ff; }
-.ed-dot-throw{ background:#4cff4c; }
-.hidden{ display:none; }
-
-@media (max-width: 950px){
-  .editor-layout{ grid-template-columns: 1fr; }
-}
-
-
-/* =================================================
-   CLEAN UI OVERRIDES (pills, modal, executes layout)
-   ================================================= */
-
-:root{
-  --panel-w: 400px;
-  --panel-gap: 18px;
-}
-
-/* --- Filters as pills (replaces checkboxes) --- */
-#filters.pillbar{
-  display:flex;
+.badge{
+  display:inline-flex;
   align-items:center;
   justify-content:center;
-  gap:14px;
-  margin: 10px 0 14px;
+  min-width: 34px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.10);
+  font-weight: 900;
+}
+
+
+/* --------------------------
+   Filters (clean pills)
+   viewer.html uses buttons .pill
+   -------------------------- */
+.pillbar{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap: 14px;
   flex-wrap: wrap;
+  margin: 10px 0 12px;
+}
+.pill-sep{
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
 }
 
 .pill-group{
   display:flex;
-  gap:8px;
-  padding:6px;
+  gap: 10px;
+  padding: 6px;
   border-radius: 999px;
-  background: rgba(255,255,255,0.04);
+  background: rgba(0,0,0,0.35);
   border: 1px solid rgba(255,255,255,0.10);
-  backdrop-filter: blur(6px);
-}
-
-.pill-sep{
-  width: 1px;
-  height: 28px;
-  background: rgba(255,255,255,0.10);
-  border-radius: 999px;
+  backdrop-filter: blur(10px);
 }
 
 .pill{
-  margin-top: 0;                 /* override global button margin */
-  padding: 7px 12px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.85);
+  padding: 8px 14px;
   border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(0,0,0,0.35);
-  color: rgba(255,255,255,0.80);
-  font-weight: 700;
-  font-size: 12px;
-  cursor: pointer;
-  transition: filter .15s ease, border-color .15s ease, background .15s ease, color .15s ease;
+  cursor:pointer;
+  font-weight: 900;
+  font-size: 13px;
+  letter-spacing: .2px;
+  transition: transform .12s ease, filter .12s ease, background .12s ease;
 }
-
-.pill:hover{ filter: brightness(1.12); }
+.pill:hover{ transform: translateY(-1px); filter: brightness(1.12); }
 
 .pill.active{
-  background: rgba(255,255,255,0.10);
-  color: #fff;
-  border-color: rgba(99,102,241,0.75);
+  background: rgba(99,102,241,0.22);
+  border-color: rgba(99,102,241,0.65);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.35) inset, 0 0 18px rgba(99,102,241,0.18);
+  color: white;
 }
 
-/* --- Executes: 3 wide grid, clear bottom-left --- */
+/* --------------------------
+   Executes (bottom-left)
+   -------------------------- */
 #executes{
   position: fixed;
-  left: calc(var(--panel-w) + 8px);
+  left: 420px;  /* after left panel */
   bottom: 12px;
   z-index: 2500;
-  width: min(560px, calc(100vw - var(--panel-w) - 32px));
-  pointer-events: none; /* allow map clicks except on buttons */
+  text-align:left;
 }
 
 #exec-grid{
-  display: grid;
+  display:grid;
   grid-template-columns: repeat(3, max-content);
-  grid-auto-flow: row;
-  gap: 10px;
-  justify-content: start;
-  margin-bottom: 44px; /* space for clear */
-  pointer-events: auto;
-}
-
-#exec-clear{
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  pointer-events: auto;
+  gap: 8px;
+  align-items:start;
 }
 
 .exec-btn{
-  margin-top: 0;
-  padding: 9px 12px;
+  padding: 8px 12px;
   border-radius: 12px;
   background: rgba(0,0,0,0.55);
-  border: 1px solid rgba(255,255,255,0.18);
-  color: #fff;
-  font-weight: 800;
-  cursor: pointer;
-  backdrop-filter: blur(8px);
-  white-space: nowrap;
+  border: 1px solid rgba(255,255,255,0.14);
+  color: white;
+  font-weight: 900;
+  cursor:pointer;
+  backdrop-filter: blur(10px);
 }
-
-.exec-btn:hover{ filter: brightness(1.14); }
+.exec-btn:hover{ filter: brightness(1.15); }
 
 .exec-clear{
-  opacity: .9;
-}
-
-/* --- Universal modal (used everywhere instead of prompt/confirm) --- */
-.ui-modal{
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-}
-
-.ui-modal.hidden{ display:none; }
-
-.ui-modal__backdrop{
-  position:absolute;
-  inset:0;
-  background: rgba(0,0,0,0.60);
-  backdrop-filter: blur(6px);
-}
-
-.ui-modal__dialog{
-  position: relative;
-  width: min(520px, 96vw);
-  max-height: min(82vh, 760px);
-  overflow: hidden;
-  border-radius: 16px;
-  background: linear-gradient(180deg, #020617, #000);
-  border: 1px solid #1f2937;
-  box-shadow: 0 25px 50px rgba(0,0,0,.65);
-}
-
-.ui-modal__header{
-  display:flex;
-  align-items:center;
-  justify-content: space-between;
-  padding: 14px 14px 10px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
-
-.ui-modal__title{
-  font-size: 16px;
-  font-weight: 900;
-}
-
-.icon-btn{
-  margin-top: 0;
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.85);
-  cursor: pointer;
-}
-
-.icon-btn:hover{ filter: brightness(1.15); }
-
-.ui-modal__body{
-  padding: 14px;
-  overflow: auto;
-  overflow-x: hidden;
-  max-height: calc(82vh - 120px);
-  text-align: left;
-}
-
-.ui-modal__actions{
-  display:flex;
-  justify-content: flex-end;
-  gap: 10px;
-  padding: 12px 14px 14px;
-  border-top: 1px solid rgba(255,255,255,0.08);
-}
-
-.ui-btn{
-  margin-top: 0;
-  padding: 9px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.15);
-  background: rgba(255,255,255,0.06);
-  color: #fff;
+  margin-top: 10px;
+  padding: 6px 10px;
+  font-size: 12px;
   font-weight: 800;
-  cursor: pointer;
+  opacity: 0.75;
+  border-style: dashed;
+  background: rgba(255,255,255,0.05);
+}
+.exec-clear:hover{
+  opacity: 1;
+  background: rgba(255,80,80,0.15);
+  border-color: rgba(255,80,80,0.6);
 }
 
-.ui-btn:hover{ filter: brightness(1.15); }
-
-.ui-btn.primary{
-  border-color: rgba(99,102,241,0.80);
-  background: rgba(99,102,241,0.22);
-}
-
-.ui-btn.danger{
-  border-color: rgba(239,68,68,0.85);
-  background: rgba(239,68,68,0.16);
-}
-
-/* modal form */
-.ui-field{
-  display:flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 12px;
-}
-
-.ui-field label{
-  font-size: 12px;
-  color: rgba(255,255,255,0.75);
-  font-weight: 700;
-}
-
-.ui-input{
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.14);
-  background: rgba(0,0,0,0.35);
-  color: #fff;
-  font-size: 14px;
-}
-
-.ui-input:focus{
-  outline: none;
-  border-color: rgba(99,102,241,0.85);
-}
-
-/* modal select list */
-.ui-list{
-  display:flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.ui-item{
-  display:flex;
-  align-items:center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(255,255,255,0.04);
-  cursor: pointer;
-}
-
-.ui-item:hover{ filter: brightness(1.08); }
-
-.ui-item .meta{
-  display:flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.ui-item .title{
-  font-weight: 900;
-  font-size: 13px;
-  color:#fff;
-}
-
-.ui-item .sub{
-  font-size: 12px;
-  color: rgba(255,255,255,0.65);
-}
-
-.ui-chip{
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 900;
-  border: 1px solid rgba(255,255,255,0.14);
-  background: rgba(0,0,0,0.25);
-  color: rgba(255,255,255,0.85);
-}
-
-.ui-item.selected{
-  border-color: rgba(99,102,241,0.85);
-  background: rgba(99,102,241,0.12);
-}
-
-/* --- User groups: make buttons immune to global button styles --- */
-#user-groups button{ margin-top: 0; }
-
-
-/* --- User Groups (clean box, right side) --- */
-#user-groups{
+/* --------------------------
+   Groups dock (bottom-right, before right panel)
+   -------------------------- */
+.groups-dock{
   position: fixed;
-  right: calc(var(--panel-w) + var(--panel-gap));
+  right: 420px; /* before right panel */
   bottom: 12px;
-  width: 280px;
-  z-index: 2400;
-  padding: 14px;
+  width: 320px;
+  z-index: 2600;
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(255,255,255,0.14);
   border-radius: 18px;
-  background: linear-gradient(180deg, #020617, #000);
-  border: 1px solid rgba(255,255,255,0.10);
-  box-shadow: 0 25px 50px rgba(0,0,0,.60);
-  backdrop-filter: blur(8px);
+  padding: 14px;
+  backdrop-filter: blur(10px);
+  text-align:left;
 }
 
-.ug-head{
-  display:flex;
-  align-items:center;
-  justify-content:center;
+.groups-title{
+  font-size: 18px;
+  font-weight: 900;
   margin-bottom: 10px;
 }
 
-.ug-title{
-  font-size: 18px;
-  font-weight: 900;
-}
+.groups-list{ display:flex; flex-direction:column; gap: 10px; }
+.groups-empty{ color: rgba(255,255,255,0.62); font-weight: 700; padding: 8px 2px; }
 
-.ug-list{
-  display:flex;
-  flex-direction: column;
-  gap: 10px;
-  max-height: 42vh;
-  overflow: auto;
-  overflow-x: hidden;
-  padding-right: 4px;
-}
-
-.ug-empty{
-  color: rgba(255,255,255,0.65);
-  font-size: 13px;
-  padding: 8px 6px;
-  text-align: center;
-}
-
-.ug-row{
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 10px;
-  padding: 8px;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(255,255,255,0.04);
-}
-
-.ug-open{
-  all: unset;
-  cursor: pointer;
+.group-row{
   display:flex;
   align-items:center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(0,0,0,0.35);
-}
-
-.ug-open:hover{ filter: brightness(1.08); }
-
-.ug-name{
-  font-weight: 900;
-  color:#fff;
-  font-size: 13px;
-}
-
-.ug-count{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-width: 24px;
-  height: 20px;
-  padding: 0 8px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 900;
-  border: 1px solid rgba(255,255,255,0.14);
-  color: rgba(255,255,255,0.85);
-  background: rgba(255,255,255,0.06);
-}
-
-.ug-actions{
-  display:flex;
   gap: 8px;
 }
 
-.ug-action{
-  margin-top: 0;
+.group-name{
+  flex: 1;
+  text-align:left;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  color: white;
+  font-weight: 900;
+  cursor:pointer;
+}
+.group-name:hover{ filter: brightness(1.12); }
+
+.icon-btn{
   width: 38px;
   height: 38px;
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.12);
   background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.85);
-  cursor: pointer;
+  color: rgba(255,255,255,0.92);
+  cursor:pointer;
+}
+.icon-btn:hover{ filter: brightness(1.12); }
+.icon-btn.danger:hover{
+  background: rgba(255,80,80,0.14);
+  border-color: rgba(255,80,80,0.35);
+}
+
+.groups-create{
+  margin-top: 12px;
+  width:100%;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(99,102,241,0.55);
+  background: rgba(99,102,241,0.18);
+  color: white;
+  font-weight: 900;
+  cursor:pointer;
+}
+.groups-create:hover{ filter: brightness(1.12); }
+
+/* --------------------------
+   Lightbox (fullscreen image)
+   -------------------------- */
+#lightbox{
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  background: rgba(0,0,0,0.72);
+  z-index: 6500;
+}
+#lightbox.hidden{ display:none !important; }
+#lightbox-img{
+  max-width: 95vw;
+  max-height: 95vh;
+  border-radius: 14px;
+  box-shadow: 0 22px 70px rgba(0,0,0,0.65);
+  cursor: zoom-out;
+}
+/* Lightbox gallery layout (right rail) */
+#lightbox .lb-inner{
+  width: min(1200px, 96vw);
+  height: min(92vh, 920px);
+  display:flex;
+  gap: 14px;
+  align-items: stretch;
+}
+#lightbox .lb-main{
+  flex: 1 1 auto;
   display:flex;
   align-items:center;
   justify-content:center;
+  min-width: 0;
 }
-
-.ug-action svg{
-  width: 18px;
-  height: 18px;
-  fill: currentColor;
-}
-
-.ug-action:hover{ filter: brightness(1.15); }
-
-.ug-danger:hover{
-  border-color: rgba(239,68,68,0.85);
-  color: #ef4444;
-}
-
-.ug-create{
-  margin-top: 12px;
-  width: 100%;
-  padding: 10px 12px;
+#lightbox .lb-img{
+  max-width: 100%;
+  max-height: 100%;
   border-radius: 14px;
-  border: 1px solid rgba(99,102,241,0.80);
-  background: rgba(99,102,241,0.20);
-  color: #fff;
-  font-weight: 900;
-  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: 0 18px 60px rgba(0,0,0,0.55);
 }
-
-.ug-create:hover{ filter: brightness(1.12); }
-
-
-/* Safety: hide old AIM headings if any */
-.lineup-item h4 { display: none; }
-
-
-/* Tighten Spot header spacing */
-.panel h2{ margin: 0 0 6px; }
-.panel .stand-img{ margin-top: 6px; }
-
-/* Modal filters spacing */
-.modal-pillbar{ margin-bottom: 10px; }
-
-/* Chips by type (picker) */
-.ui-chip.chip-smoke{ border-color: rgba(111,168,255,0.55); color: #dbeafe; }
-.ui-chip.chip-flash{ border-color: rgba(255,217,102,0.55); color: #fff7d1; }
-.ui-chip.chip-molotov{ border-color: rgba(255,140,66,0.55); color: #ffe3d1; }
-
-/* ==========================
-   Header
-   ========================== */
-
-.app-header {
-  padding: 48px 16px 32px;
+#lightbox .lb-rail{
+  width: 132px;
+  overflow: auto;
+  display:flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 6px;
+}
+#lightbox .lb-thumb{
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 8px;
+  cursor: pointer;
+  display:flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: stretch;
+}
+#lightbox .lb-thumb:hover{ background: rgba(255,255,255,0.10); }
+#lightbox .lb-thumb.is-active{
+  border-color: rgba(120,140,255,0.70);
+  background: rgba(120,140,255,0.14);
+}
+#lightbox .lb-thumb img{
+  width: 100%;
+  height: 78px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.10);
+}
+#lightbox .lb-thumb-label{
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  color: rgba(255,255,255,0.92);
   text-align: center;
 }
-
-.app-title {
-  margin: 0;
-  font-size: 42px;
-  font-weight: 700;
-  letter-spacing: 1px;
-
-  color: #f8fafc;
-  text-shadow:
-    0 0 10px rgba(99,102,241,0.35),
-    0 0 30px rgba(99,102,241,0.15);
+@media (max-width: 720px){
+  #lightbox .lb-inner{ width: 96vw; height: 92vh; }
+  #lightbox .lb-rail{ width: 106px; }
+  #lightbox .lb-thumb img{ height: 68px; }
 }
 
-/* Editor button */
-.editor-btn {
-  margin-top: 16px;
-  display: inline-block;
 
-  padding: 8px 18px;
+/* --------------------------
+   Modal (universal)
+   -------------------------- */
+.ui-modal.hidden{ display:none; }
+.ui-modal{
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+}
+.ui-modal__backdrop{
+  position:absolute;
+  inset:0;
+  background: rgba(0,0,0,0.60);
+}
+.ui-modal__dialog{
+  position: relative;
+  width: min(720px, 92vw);
+  margin: 10vh auto 0;
+  background: rgba(8, 10, 18, 0.92);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 22px 70px rgba(0,0,0,0.65);
+}
+.ui-modal__header{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+}
+.ui-modal__title{ font-weight: 900; font-size: 18px; }
+.ui-modal__body{ padding: 14px 16px; }
+.ui-modal__actions{
+  display:flex;
+  justify-content:flex-end;
+  gap: 10px;
+  padding: 12px 16px 16px;
+}
+
+.ui-btn{
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color: white;
+  font-weight: 900;
+  cursor:pointer;
+}
+.ui-btn:hover{ filter: brightness(1.12); }
+.ui-btn-weak{ opacity: 0.85; }
+.ui-btn-primary{
+  border-color: rgba(99,102,241,0.55);
+  background: rgba(99,102,241,0.18);
+}
+.ui-btn-danger{
+  border-color: rgba(255,80,80,0.40);
+  background: rgba(255,80,80,0.14);
+}
+
+.ui-field{ display:block; }
+.ui-label{ color: rgba(255,255,255,0.70); font-weight: 800; font-size: 13px; margin-bottom: 6px; }
+.ui-input{
+  width:100%;
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.35);
+  color: white;
+  outline: none;
+}
+.ui-input:focus{
+  border-color: rgba(99,102,241,0.55);
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.18);
+}
+
+.ui-list{
+  display:flex;
+  flex-direction:column;
+  gap: 10px;
+}
+.ui-list-row{
+  width:100%;
+  text-align:left;
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.05);
+  color: white;
+  font-weight: 900;
+  cursor:pointer;
+}
+.ui-list-row:hover{ filter: brightness(1.12); }
+
+/* Select lineups modal */
+.select-top{ display:flex; flex-direction:column; gap: 10px; }
+.select-filters{ display:flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+
+.chip{
+  padding: 8px 12px;
   border-radius: 999px;
-
-  font-size: 14px;
-  font-weight: 500;
-
-  color: #c7d2fe;
-  background: rgba(99,102,241,0.15);
-  border: 1px solid rgba(99,102,241,0.4);
-
-  text-decoration: none;
-  transition: all 0.15s ease;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.85);
+  font-weight: 900;
+  cursor:pointer;
+}
+.chip.active{
+  background: rgba(99,102,241,0.22);
+  border-color: rgba(99,102,241,0.65);
+  color: white;
 }
 
-.editor-btn:hover {
+.select-list{
+  margin-top: 12px;
+  display:flex;
+  flex-direction:column;
+  gap: 10px;
+  max-height: 52vh;
+  overflow:auto;
+  padding-right: 4px;
+}
+
+.select-row{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 12px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.05);
+  color: white;
+  cursor:pointer;
+}
+.select-row:hover{ filter: brightness(1.12); }
+.select-row.selected{
+  border-color: rgba(99,102,241,0.55);
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.18);
+}
+
+.select-row-name{ font-weight: 900; }
+.select-row-sub{ margin-top: 4px; color: rgba(255,255,255,0.60); font-weight: 800; font-size: 12px; }
+
+.type-pill{
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 900;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.35);
+}
+.type-pill.smoke{ color: var(--smoke); border-color: rgba(111,168,255,0.35); }
+.type-pill.flash{ color: var(--flash); border-color: rgba(255,217,102,0.35); }
+.type-pill.molotov{ color: var(--molly); border-color: rgba(255,140,66,0.35); }
+
+/* --------------------------
+   Markers
+   - target markers show PNG icons (with fallback cross)
+   - throw markers: small cross (not dot)
+   -------------------------- */
+.marker{
+  position:absolute;
+  width: 16px;
+  height: 16px;
+  transform: translate(-50%, -50%) rotate(45deg);
+  cursor:pointer;
+  color: inherit;
+  z-index: 10;
+}
+
+/* cross strokes (fallback) */
+.marker::before,
+.marker::after{
+  content:"";
+  position:absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: currentColor;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.9);
+}
+.marker::before{ width: 1.2px; height: 16px; }
+.marker::after{ width: 16px; height: 1.2px; }
+
+.marker:hover{ filter: brightness(1.18); }
+
+/* type colors */
+.marker.smoke{ color: var(--smoke); }
+.marker.flash{ color: var(--flash); }
+.marker.molotov{ color: var(--molly); }
+
+/* target markers: show icon, keep faint cross behind */
+.marker-target{
+  width: 26px;
+  height: 26px;
+  transform: translate(-50%, -50%);
+  border-radius: 7px;
+  background-repeat:no-repeat;
+  background-position:center;
+  background-size: contain;
+  filter: drop-shadow(0 0 8px currentColor);
+}
+.marker-target::before,
+.marker-target::after{
+  opacity: 0.28;
+  box-shadow: none;
+  background: currentColor;
+}
+.marker-target.smoke{
+  background-image: var(--icons-smoke);
+  outline: 2px solid rgba(111,168,255,0.95);
+  filter: drop-shadow(0 0 10px currentColor) drop-shadow(0 0 22px currentColor);
+  box-shadow: 0 0 14px 2px currentColor;
+}
+.marker-target.flash{
+  background-image: var(--icons-flash);
+  outline: 2px solid rgba(255,217,102,0.95);
+  filter: drop-shadow(0 0 10px currentColor) drop-shadow(0 0 22px currentColor);
+  box-shadow: 0 0 14px 2px currentColor;
+}
+.marker-target.molotov{
+  background-image: var(--icons-molotov);
+  outline: 2px solid rgba(255,140,66,0.90);
+}
+
+/* selected/opened highlight */
+.marker.marker-active{
+  transform: translate(-50%, -50%) scale(1.08);
+  filter: drop-shadow(0 0 14px currentColor) brightness(1.12);
+  z-index: 30;
+}
+
+/* Throw marker: small cross (no dot) */
+.throw-marker{
+  position:absolute;
+  width: 14px;
+  height: 14px;
+  transform: translate(-50%, -50%) rotate(45deg);
+  z-index: 25;
+  pointer-events:none;
+  color: currentColor;
+}
+.throw-marker::after{ content:none; } /* remove old dot */
+.throw-marker::before{
+  content:"";
+  position:absolute;
+  left:0; top:0;
+  width:100%; height:100%;
+  background:
+    linear-gradient(currentColor, currentColor) center/2px 100% no-repeat,
+    linear-gradient(currentColor, currentColor) center/100% 2px no-repeat;
+  filter: drop-shadow(0 0 7px currentColor);
+  opacity: 0.95;
+}
+.throw-marker.smoke{ color: var(--smoke); }
+.throw-marker.flash{ color: var(--flash); }
+.throw-marker.molotov{ color: var(--molly); }
+
+/* label next to throw marker */
+.throw-label{
+  position:absolute;
+  left: 14px;
+  top: -6px;
+  font-size: 9px;
+  font-weight: 900;
+  color: white;
+  background: rgba(0,0,0,0.70);
+  border: 1px solid rgba(255,255,255,0.10);
+  padding: 2px 5px;
+  border-radius: 999px;
+  pointer-events:none;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.45);
+}
+
+/* --------------------------
+   Responsive
+   -------------------------- */
+@media (max-width: 1100px){
+  .viewer-page{ padding: 0 18px 18px; }
+  #back-btn{ left: 12px; }
+  #executes{ left: 12px; }
+  .groups-dock{ right: 12px; width: min(340px, 92vw); }
+  #panels-left, #panels-right{
+    position: fixed;
+    left: 0; right: 0;
+    width: auto;
+    height: 42vh;
+    top: auto;
+    bottom: 0;
+    border-left: none;
+    border-right: none;
+    border-top: 1px solid rgba(255,255,255,0.12);
+  }
+  #panels-left{ bottom: 42vh; height: 30vh; }
+}
+
+/* =====================================
+   CLICK FIX + ICON TUNING (override)
+   ===================================== */
+
+/* Never let decorative overlays steal clicks */
+.viewer-page::before,
+.viewer-page::after,
+#map-container::before,
+#map-container::after,
+#filters::before,
+#filters::after,
+#executes::before,
+#executes::after,
+#groups-dock::before,
+#groups-dock::after {
+  pointer-events: none;
+}
+
+/* Make sure interactive UI is actually clickable */
+#filters,
+#executes,
+#groups-dock,
+#back-btn,
+.marker,
+.exec-btn,
+.groups-create,
+.groups-row,
+.pill {
+  pointer-events: auto;
+}
+
+/* Fix stacking (some browsers end up putting the SVG overlay above everything) */
+#map-container { position: relative; pointer-events: auto; }
+#map { position: relative; z-index: 1; pointer-events: auto; }
+#map-overlay { z-index: 2; pointer-events: none !important; }
+.marker { z-index: 3; }
+
+/* Keep UI where it belongs (don't override fixed positioning) */
+#filters{ position: relative; z-index: 2600; }
+#executes, #groups-dock, #back-btn{ position: fixed; z-index: 2600; }
+
+/* ---- Target icons smaller ---- */
+.marker-target{
+  width: 22px;
+  height: 22px;
+}
+
+/* Remove the "X" drawn over the target icons */
+.marker-target::before,
+.marker-target::after{
+  display: none !important;
+}
+
+/* Keep label readable (S1/M1/F1) */
+.throw-label{
   color: #fff;
-  background: rgba(99,102,241,0.35);
-  border-color: #818cf8;
-  box-shadow: 0 0 12px rgba(99,102,241,0.4);
+  text-shadow:
+    0 1px 0 rgba(0,0,0,0.85),
+    0 0 10px rgba(0,0,0,0.6);
+}
+
+
+/* --------------------------
+   Lineup overview (right)
+   -------------------------- */
+.panel .panel-body{
+  display:flex;
+  gap: 12px;
+  align-items:flex-start;
+}
+
+.panel .lineup-view{
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.panel .lineup-nav{
+  width: 52px;
+  max-height: 360px;
+  overflow: auto;
+  display:flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-right: 2px;
+
+  display:none;
+}
+
+.lineup-nav-btn{
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.9);
+  border-radius: 10px;
+  padding: 6px 0;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+}
+
+.lineup-nav-btn:hover{
+  background: rgba(255,255,255,0.10);
+}
+
+.lineup-nav-btn.is-active{
+  border-color: rgba(120,140,255,0.85);
+  background: rgba(120,140,255,0.22);
+  color: white;
+}
+
+/* show one lineup at a time */
+.lineup-item{ display:none; }
+.lineup-item.is-active{ display:block; }
+
+
+
+/* =====================================================
+   PERFECT PATCHES
+   1) Markers: remove external glow, keep inner glow + visible icon
+   2) Side panel: show all aims (S1,S2,...) + colored badges
+   3) Lightbox: align thumbs rail to big image height
+   ===================================================== */
+
+/* --- 1) MARKERS --- */
+/* Kill ONLY external glow (drop-shadow). Keep element crisp. */
+.marker-target{
+  filter: none !important; /* remove external glow */
+  background-color: rgba(10,12,18,0.72) !important; /* dark backdrop behind icon */
+  border: 2px solid rgba(255,255,255,0.14) !important;
+  box-shadow: inset 0 0 10px rgba(255,255,255,0.10) !important; /* inner only */
+  position: absolute; /* do NOT change layout; markers rely on absolute */
+}
+
+/* Your old CSS painted solid blocks over the icon via currentColor.
+   We neutralize that and re-build a proper inner glow. */
+.marker-target::before,
+.marker-target::after{
+  background: none !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  display: block !important;
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: inherit !important;
+  pointer-events: none !important;
+}
+
+/* inner glow layer (warm, but not covering icon completely) */
+.marker-target::before{
+  background: radial-gradient(circle at 50% 45%,
+    rgba(255,255,255,0.10) 0%,
+    rgba(255,255,255,0.06) 40%,
+    rgba(0,0,0,0.00) 72%) !important;
+  opacity: 1 !important;
+}
+
+/* icon layer: render a CLEAR icon even if PNG is black */
+.marker-target::after{
+  /* we inject the right icon via --mk-icon per type */
+  background-image: var(--mk-icon) !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 76% !important;
+
+  /* make black icon visible */
+  filter: invert(1) brightness(1.15) contrast(1.10) !important;
+  opacity: 0.92 !important;
+  mix-blend-mode: normal !important;
+}
+
+/* set icon var + type colors (no outer glow) */
+.marker-target.smoke{
+  --mk-icon: var(--icons-smoke);
+  outline: none !important;
+  border-color: rgba(111,168,255,0.95) !important;
+  box-shadow: inset 0 0 12px rgba(140,180,255,0.18) !important;
+}
+.marker-target.flash{
+  --mk-icon: var(--icons-flash);
+  outline: none !important;
+  border-color: rgba(255,217,102,0.95) !important;
+  box-shadow: inset 0 0 12px rgba(255,230,140,0.20) !important;
+}
+.marker-target.molotov{
+  --mk-icon: var(--icons-molotov);
+  outline: none !important;
+  border-color: rgba(255,140,66,0.92) !important;
+  box-shadow: inset 0 0 12px rgba(255,165,95,0.18) !important;
+}
+
+/* hover: still inner, never external */
+.marker-target:hover{
+  box-shadow: inset 0 0 16px rgba(255,255,255,0.12) !important;
+}
+.marker-target:hover::after{ opacity: 1 !important; }
+
+/* --- 2) SIDE PANEL: show ALL aims + colored S/F/M badges --- */
+.lineup-item{ display:block !important; }
+.lineup-item.is-active{ display:block !important; }
+
+.lineup-item .badge{
+  color: rgba(255,255,255,0.92) !important;
+  text-shadow: none !important;
+}
+
+/* color badge by type (S=blue, F=yellow, M=orange) */
+.lineup-item[data-type="smoke"] .badge{
+  background: rgba(111,168,255,0.18) !important;
+  border-color: rgba(111,168,255,0.45) !important;
+  color: rgba(200,225,255,0.98) !important;
+}
+.lineup-item[data-type="flash"] .badge{
+  background: rgba(255,217,102,0.18) !important;
+  border-color: rgba(255,217,102,0.45) !important;
+  color: rgba(255,245,200,0.98) !important;
+}
+.lineup-item[data-type="molotov"] .badge{
+  background: rgba(255,140,66,0.18) !important;
+  border-color: rgba(255,140,66,0.45) !important;
+  color: rgba(255,225,205,0.98) !important;
+}
+
+/* --- 3) LIGHTBOX thumbs rail alignment --- */
+/* If your overview script injects a .lb-rail, align it with big image height */
+#lightbox{
+  align-items: center !important;
+}
+#lightbox-img{
+  max-height: 95vh !important;
+}
+.lb-rail{
+  max-height: 95vh !important;
+  align-self: stretch !important;
+}
+/* =========================================
+   LIGHTBOX — ALIGNER LA COLONNE (lb-rail)
+   AVEC L’IMAGE (lb-main)
+   ========================================= */
+
+/* lb-inner est le container flex: on centre verticalement les 2 colonnes */
+#lightbox .lb-inner{
+  display: flex !important;
+  align-items: center !important;   /* <-- clé: centre lb-main et lb-rail */
+}
+
+/* lb-main: garde l'image dans une hauteur contrôlée */
+#lightbox .lb-main{
+  display: flex !important;
+  align-items: center !important;
+}
+#lightbox .lb-main img{
+  max-height: 80vh !important;
+  height: auto !important;
+}
+
+/* lb-rail (la colonne de thumbs) : on la centre dans la même hauteur */
+#lightbox .lb-rail{
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important; /* <-- centre les thumbs */
+  align-items: center !important;
+  height: auto !important;            /* <-- ignore le height inline visuellement */
+  max-height: 80vh !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* si un style inline force height/max-height, on neutralise */
+#lightbox .lb-rail[style]{
+  height: auto !important;
+  max-height: 80vh !important;
+}
+
+/* spacing thumbs */
+#lightbox .lb-thumb{
+  margin: 8px 0 !important;
 }

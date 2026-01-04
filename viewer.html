@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
+<body class="viewer-page">
   <h1 id="page-title">CS2 Lineups</h1>
 
   <!-- Filters (clean pills) -->
@@ -26,7 +26,7 @@
     </div>
   </div>
 
-  <!-- Executes container (grid + clear bottom-left) -->
+  <!-- Executes container -->
   <div id="executes" aria-label="Executes">
     <div id="exec-grid"></div>
     <button id="exec-clear" class="exec-btn exec-clear" type="button">✕ Clear</button>
@@ -38,7 +38,7 @@
     <svg id="map-overlay"></svg>
   </div>
 
-  <p id="coords">Clique sur la map pour obtenir les coordonnées</p>
+  <p id="coords">Click on the map to get coordinates</p>
 
   <!-- Side panels -->
   <div id="panels-left"></div>
@@ -62,7 +62,14 @@
     </div>
   </div>
 
-  <!-- Loader loads data/<map>.js then script.js -->
+  <!-- Groups dock (created by JS if missing; keeping markup here for clarity) -->
+  <aside id="groups-dock" class="groups-dock" aria-label="My Groups">
+    <div class="groups-title">My Groups</div>
+    <div id="user-groups-list" class="groups-list"></div>
+    <button id="add-group" class="groups-create" type="button">+ Create group</button>
+  </aside>
+
+  <!-- Loader loads data/<map>.json then script.js -->
   <script src="loader.js"></script>
 </body>
 </html>
