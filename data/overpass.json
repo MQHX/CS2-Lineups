@@ -21,7 +21,7 @@
       "name": "Monster",
       "type": "molotov",
       "side": "CT",
-      "description": "Left click + Running",
+      "description": "Running + Throw",
       "x": 80.9,
       "y": 39.7,
       "throw": { "x": 70.9, "y": 26.5 },
@@ -49,7 +49,7 @@
       "name": "B Site hold",
       "type": "smoke",
       "side": "CT",
-      "description": "Left click",
+      "description": "Throw",
       "x": 75.1,
       "y": 28.3,
       "throw": { "x": 75.8, "y": 23.2 },
@@ -63,6 +63,8 @@
       "name": "Short",
       "type": "molotov",
       "side": "CT",
+      "target": "short_molly",
+      "variant": "B site",
       "description": "Left and Right click + Running",
       "x": 68,
       "y": 51,
@@ -171,7 +173,7 @@
       "name": "Bank",
       "target": "bank_smoke",
       "variant": "Long",
-      "description": "Left click",
+      "description": "Throw",
       "x": 44.3,
       "y": 10.8,
       "throw": { "x": 24.8, "y": 33.1 },
@@ -201,8 +203,8 @@
       "type": "smoke",
       "side": "T",
       "name": "Heaven",
-      "target": "",
-      "variant": "",
+      "target": "heaven",
+      "variant": "Short",
       "description": "Jumpthrow",
       "x": 57.8,
       "y": 22.4,
@@ -235,7 +237,7 @@
       "name": "ABC",
       "target": "",
       "variant": "",
-      "description": "Left click",
+      "description": "Throw",
       "x": 57.5,
       "y": 35.6,
       "throw": { "x": 61.3, "y": 44.5 },
@@ -267,7 +269,7 @@
       "name": "B site first",
       "target": "",
       "variant": "",
-      "description": "Left click",
+      "description": "Throw",
       "x": 84.0,
       "y": 35.4,
       "throw": { "x": 85.6, "y": 52.2 },
@@ -283,7 +285,7 @@
       "name": "B site second",
       "target": "",
       "variant": "",
-      "description": "Left click",
+      "description": "Throw",
       "x": 76.1,
       "y": 36.0,
       "throw": { "x": 85.6, "y": 52.2 },
@@ -322,6 +324,54 @@
       "images": {
         "stand": "images/overpass/playground_molly.png",
         "aim": "images/overpass/playground_molly_2.png"
+      }
+    },
+  {
+      "id": "monster_smoke_from_banana",
+      "type": "smoke",
+      "side": "CT",
+      "name": "Monster",
+      "target": "monster_smoke",
+      "variant": "Banana",
+      "description": "Jumpthrow",
+      "x": 80.9,
+      "y": 44.6,
+      "throw": { "x": 46.0, "y": 29.7 },
+      "images": {
+        "stand": "images/overpass/monsters_smoke_1.png",
+        "aim": "images/overpass/monsters_smoke_2.png"
+      }
+    },
+  {
+      "id": "short_molly_from_banana",
+      "name": "Short",
+      "type": "molotov",
+      "side": "CT",
+      "target": "short_molly",
+      "variant": "Banana",
+      "description": "Walk + Throw",
+      "x": 68,
+      "y": 51,
+      "throw": { "x": 47.1, "y": 30.6 },
+      "images": {
+        "stand": "images/overpass/short_molly_3.png",
+        "aim": "images/overpass/short_molly_4.png"
+      }
+    },
+  {
+      "id": "heaven_smoke_2",
+      "type": "smoke",
+      "side": "T",
+      "name": "Heaven",
+      "target": "heaven",
+      "variant": "T-Spawn",
+      "description": "Running (until shadow disappears) + Jumpthrow",
+      "x": 57.8,
+      "y": 22.4,
+      "throw": { "x": 78.5, "y": 67.4 },
+      "images": {
+        "stand": "images/overpass/heaven_smoke_3.png",
+        "aim": "images/overpass/heaven_smoke_4.png"
       }
     }
   ],
