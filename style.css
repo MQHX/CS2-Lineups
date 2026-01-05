@@ -1249,3 +1249,22 @@ body{
   }
 }
 
+/* ================================
+   FIX croix noire sur les icônes
+   ================================ */
+
+/* Badge clavier / label parasite sur les markers */
+.marker .key,
+.marker .shortcut,
+.marker .hotkey,
+.marker [data-key],
+.marker [class*="key"],
+.marker [class*="shortcut"] {
+  display: none !important;
+}
+
+/* Cas fréquent : pseudo-élément */
+.marker::before,
+.marker::after {
+  content: none !important;
+}
