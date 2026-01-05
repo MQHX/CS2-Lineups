@@ -1,13 +1,13 @@
 {
   "lineups": [
     {
-      "id": "window_insta_from_T",
+      "id": "window_insta",
       "type": "smoke",
       "side": "T",
       "name": "Window",
       "target": "window_smoke",
       "variant": "T spawn (Insta)",
-      "description": "W-Jumpthrow",
+      "description": "W + Jumpthrow",
       "x": 38.1,
       "y": 41.0,
       "throw": { "x": 84.6, "y": 32.8 },
@@ -16,15 +16,334 @@
         "aim": "",
         "Insta": "true"
       }
+    },
+    {
+      "id": "cross_mid",
+      "type": "smoke",
+      "side": "T",
+      "name": "Cross",
+      "target": "",
+      "variant": "",
+      "description": "Throw",
+      "x": 61.7,
+      "y": 37.5,
+      "throw": { "x": 88.5, "y": 29.5 },
+      "images": {
+        "stand": "images/mirage/t_smokes.png",
+        "aim": "images/mirage/cross.png"
+      }
+    },
+    {
+      "id": "connector",
+      "type": "smoke",
+      "side": "T",
+      "name": "Connector",
+      "target": "",
+      "variant": "",
+      "description": "Jumpthrow",
+      "x": 49.8,
+      "y": 46.0,
+      "throw": { "x": 88.5, "y": 29.5 },
+      "images": {
+        "stand": "images/mirage/t_smokes.png",
+        "aim": "images/mirage/connector.png"
+      }
+    },
+    {
+      "id": "short_smoke",
+      "type": "smoke",
+      "side": "T",
+      "name": "Cat/Short",
+      "target": "",
+      "variant": "",
+      "description": "Jumpthrow",
+      "x": 44.6,
+      "y": 33.5,
+      "throw": { "x": 88.5, "y": 29.5 },
+      "images": {
+        "stand": "images/mirage/t_smokes.png",
+        "aim": "images/mirage/short.png"
+      }
+    },
+    {
+      "id": "top_con",
+      "type": "smoke",
+      "side": "T",
+      "name": "Top connector",
+      "target": "",
+      "variant": "",
+      "description": "W + Jumpthrow",
+      "x": 49.7,
+      "y": 54.0,
+      "throw": { "x": 88.5, "y": 37.7 },
+      "images": {
+        "stand": "images/mirage/top_con.png",
+        "aim": "images/mirage/top_con_2.png"
+      }
+    },
+    {
+      "id": "ticket_smoke",
+      "type": "smoke",
+      "side": "T",
+      "name": "CT/Ticket",
+      "target": "CT",
+      "variant": "Mid",
+      "description": "Jumpthrow",
+      "x": 43.6,
+      "y": 74.6,
+      "throw": { "x": 68.6, "y": 42.2 },
+      "images": {
+        "stand": "images/mirage/ct_1.png",
+        "aim": "images/mirage/ct_2.png"
+      }
+    },
+    {
+      "id": "ticket_smoke_2",
+      "type": "smoke",
+      "side": "T",
+      "name": "CT/Ticket",
+      "target": "CT",
+      "variant": "Ramp",
+      "description": "Jumpthrow",
+      "x": 43.6,
+      "y": 74.6,
+      "throw": { "x": 81.7, "y": 49.2 },
+      "images": {
+        "stand": "images/mirage/ct_3.png",
+        "aim": "images/mirage/ct_4.png"
+      }
+    },
+    {
+      "id": "stairs_smoke",
+      "type": "smoke",
+      "side": "T",
+      "name": "Stairs",
+      "target": "stairs",
+      "variant": "T Roof",
+      "description": "Left and Right click + Jumpthrow",
+      "x": 52.9,
+      "y": 59.3,
+      "throw": { "x": 77.4, "y": 54.0 },
+      "images": {
+        "stand": "images/mirage/stairs_1.png",
+        "aim": "images/mirage/stairs_2.png"
+      }
+    },
+    {
+      "id": "jungle_smoke",
+      "type": "smoke",
+      "side": "T",
+      "name": "Jungle",
+      "target": "jungle",
+      "variant": "T Roof",
+      "description": "Jumpthrow",
+      "x": 48.6,
+      "y": 59.3,
+      "throw": { "x": 77.4, "y": 54.0 },
+      "images": {
+        "stand": "images/mirage/stairs_1.png",
+        "aim": "images/mirage/jungle_2.png"
+      }
+    },
+    {
+      "id": "sandwich_molly",
+      "type": "molotov",
+      "side": "T",
+      "name": "Sandwich",
+      "target": "",
+      "variant": "",
+      "description": "Throw",
+      "x": 56.4,
+      "y": 60.0,
+      "throw": { "x": 77.4, "y": 54.0 },
+      "images": {
+        "stand": "images/mirage/stairs_1.png",
+        "aim": "images/mirage/sandwich.png"
+      }
+    },
+    {
+      "id": "stairs_smoke_2",
+      "type": "smoke",
+      "side": "T",
+      "name": "Stairs",
+      "target": "stairs",
+      "variant": "Ramp",
+      "description": "Jumpthrow",
+      "x": 52.9,
+      "y": 59.3,
+      "throw": { "x": 77.3, "y": 49.7 },
+      "images": {
+        "stand": "images/mirage/ramp.png",
+        "aim": "images/mirage/stairs_3.png"
+      }
+    },
+    {
+      "id": "jungle_smoke_2",
+      "type": "smoke",
+      "side": "T",
+      "name": "Jungle (Big)",
+      "target": "jungle",
+      "variant": "Ramp",
+      "description": "Jumpthrow",
+      "x": 48.6,
+      "y": 59.3,
+      "throw": { "x": 81.3, "y": 49.5 },
+      "images": {
+        "stand": "images/mirage/jungle_3.png",
+        "aim": "images/mirage/jungle_4.png"
+      }
+    },
+    {
+      "id": "palace_smoke",
+      "type": "smoke",
+      "side": "T",
+      "name": "Palace (Lurk)",
+      "target": "",
+      "variant": "",
+      "description": "Throw",
+      "x": 61.3,
+      "y": 68.6,
+      "throw": { "x": 69.2, "y": 70.1 },
+      "images": {
+        "stand": "images/mirage/palace_smoke_1.png",
+        "aim": "images/mirage/palace_smoke_2.png"
+      }
+    },
+    {
+      "id": "palace_molly",
+      "type": "molotov",
+      "side": "T",
+      "name": "Under palace",
+      "target": "",
+      "variant": "",
+      "description": "Running (until light) + Throw",
+      "x": 63.7,
+      "y": 67.5,
+      "throw": { "x": 72.4, "y": 71.8 },
+      "images": {
+        "stand": "images/mirage/palace_molly_1.png",
+        "aim": "images/mirage/palace_molly_2.png"
+      }
+    },
+{
+      "id": "stairs_smoke_3",
+      "type": "smoke",
+      "side": "T",
+      "name": "Stairs",
+      "target": "stairs",
+      "variant": "T-spawn",
+      "description": "Jumpthrow",
+      "x": 52.9,
+      "y": 59.3,
+      "throw": { "x": 88.5, "y": 33.8 },
+      "images": {
+        "stand": "images/mirage/rusha.png",
+        "aim": "images/mirage/stairs_4.png"
+      }
+    },
+    {
+      "id": "jungle_smoke_3",
+      "type": "smoke",
+      "side": "T",
+      "name": "Jungle",
+      "target": "jungle",
+      "variant": "T-spawn",
+      "description": "Jumpthrow",
+      "x": 48.6,
+      "y": 59.3,
+      "throw": { "x": 88.5, "y": 33.8 },
+      "images": {
+        "stand": "images/mirage/rusha.png",
+        "aim": "images/mirage/jungle_5.png"
+      }
+    },
+    {
+      "id": "b_window",
+      "type": "smoke",
+      "side": "T",
+      "name": "Market",
+      "target": "",
+      "variant": "",
+      "description": "Jumpthrow",
+      "x": 25.0,
+      "y": 35.7,
+      "throw": { "x": 58.2, "y": 13.4 },
+      "images": {
+        "stand": "images/mirage/b_exec.png",
+        "aim": "images/mirage/market.png"
+      }
+    },
+    {
+      "id": "b_short",
+      "type": "smoke",
+      "side": "T",
+      "name": "Short",
+      "target": "",
+      "variant": "",
+      "description": "Throw",
+      "x": 38.9,
+      "y": 25.5,
+      "throw": { "x": 58.2, "y": 13.4 },
+      "images": {
+        "stand": "images/mirage/b_exec.png",
+        "aim": "images/mirage/short_2.png"
+      }
+    },
+    {
+      "id": "b_door",
+      "type": "smoke",
+      "side": "T",
+      "name": "Door",
+      "target": "",
+      "variant": "",
+      "description": "W + Jumpthrow",
+      "x": 17.4,
+      "y": 35.5,
+      "throw": { "x": 58.2, "y": 13.4 },
+      "images": {
+        "stand": "images/mirage/b_exec.png",
+        "aim": "images/mirage/door.png"
+      }
+    },
+    {
+      "id": "b_site",
+      "type": "smoke",
+      "side": "T",
+      "name": "Site",
+      "target": "",
+      "variant": "",
+      "description": "Throw",
+      "x": 23.0,
+      "y": 24.7,
+      "throw": { "x": 58.2, "y": 13.4 },
+      "images": {
+        "stand": "images/mirage/b_site.png",
+        "aim": "images/mirage/b_site_2.png"
+      }
     }
 ],
 
 
   "executes": [
     {
-      "id": "",
-      "name": "",
-      "items": ["", "", ""]
+      "id": "a_execute_1",
+      "name": "A execute (from T-Roof)",
+      "items": ["stairs_smoke", "jungle_smoke", "sandwich_molly"]
+    },
+    {
+      "id": "a_execute_2",
+      "name": "A execute (from Ramp)",
+      "items": ["stairs_smoke_2", "jungle_smoke_2", "ticket_smoke_2"]
+    },
+    {
+      "id": "a_rush",
+      "name": "A rush (from T-spawn)",
+      "items": ["stairs_smoke_3", "jungle_smoke_3"]
+    },
+    {
+      "id": "b_exec",
+      "name": "B execute",
+      "items": ["b_window", "b_short","b_door"]
     }
     ]
 }
