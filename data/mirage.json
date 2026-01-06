@@ -313,12 +313,60 @@
       "target": "",
       "variant": "",
       "description": "Throw",
-      "x": 23.0,
-      "y": 24.7,
+      "x": 21.8,
+      "y": 25.0,
       "throw": { "x": 58.2, "y": 13.4 },
       "images": {
         "stand": "images/mirage/b_site.png",
         "aim": "images/mirage/b_site_2.png"
+      }
+    },
+    {
+      "id": "palace_smoke_ct",
+      "type": "smoke",
+      "side": "CT",
+      "name": "Palace",
+      "target": "",
+      "variant": "",
+      "description": "Jumpthrow",
+      "x": 63.0,
+      "y": 73.3,
+      "throw": { "x": 29.4, "y": 43.8 },
+      "images": {
+        "stand": "images/mirage/palace_smoke_3.png",
+        "aim": "images/mirage/palace_smoke_4.png"
+      }
+    },
+    {
+      "id": "b_site_molly",
+      "type": "molotov",
+      "side": "CT",
+      "name": "Site",
+      "target": "",
+      "variant": "",
+      "description": "Running + Throw",
+      "x": 24.2,
+      "y": 23.6,
+      "throw": { "x": 28.2, "y": 41.0 },
+      "images": {
+        "stand": "images/mirage/b_molly_1.png",
+        "aim": "images/mirage/b_molly_2.png"
+      }
+    },
+    {
+      "id": "mid_pop",
+      "type": "flash",
+      "side": "T",
+      "name": "Mid pop (doesn't flash teammates)",
+      "target": "",
+      "variant": "",
+      "description": "W + Jumpthrow",
+      "x": 55.4,
+      "y": 36.4,
+      "throw": { "x": 70.2, "y": 17.4 },
+      "images": {
+        "stand": "images/mirage/mid_pop_1.png",
+        "aim": "images/mirage/mid_pop_2.png"
       }
     }
 ],
