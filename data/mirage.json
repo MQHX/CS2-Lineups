@@ -392,6 +392,11 @@
       "id": "b_exec",
       "name": "B execute",
       "items": ["b_window", "b_short","b_door"]
+    },
+    {
+      "id": "window_insta_2",
+      "name": "Insta window",
+      "items": ["window_insta"]
     }
     ]
 }

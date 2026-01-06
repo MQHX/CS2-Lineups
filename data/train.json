@@ -1,19 +1,83 @@
 {
   "lineups": [
     {
-      "id": "",
-      "type": "",
-      "side": "",
-      "name": "",
+      "id": "insta_camera",
+      "type": "smoke",
+      "side": "T",
+      "name": "Camera",
+      "target": "camera",
+      "variant": "Insta",
+      "description": "",
+      "x": 70.3,
+      "y": 46.0,
+      "throw": { "x": 24.7, "y": 20.9 },
+      "images": {
+        "stand": "images/train/insta_camera.png",
+        "aim": ""
+      }
+    },
+    {
+      "id": "insta_sandwich",
+      "type": "smoke",
+      "side": "T",
+      "name": "Sandwich",
+      "target": "sandwich",
+      "variant": "Insta",
+      "description": "",
+      "x": 58.2,
+      "y": 41.5,
+      "throw": { "x": 24.7, "y": 20.9 },
+      "images": {
+        "stand": "images/train/insta_sandwich.png",
+        "aim": ""
+      }
+    },
+    {
+      "id": "insta_connector",
+      "type": "smoke",
+      "side": "T",
+      "name": "Connector",
+      "target": "connector",
+      "variant": "Insta",
+      "description": "",
+      "x": 59.9,
+      "y": 58.0,
+      "throw": { "x": 24.7, "y": 20.9 },
+      "images": {
+        "stand": "images/train/insta_connector.png",
+        "aim": ""
+      }
+    },
+    {
+      "id": "main_molly",
+      "type": "molotov",
+      "side": "CT",
+      "name": "Far main (can also use nade)",
       "target": "",
       "variant": "",
-      "description": "",
-      "x": 38.1,
-      "y": 41.0,
-      "throw": { "x": 84.6, "y": 32.8 },
+      "description": "Running + Throw",
+      "x": 37.4,
+      "y": 39.1,
+      "throw": { "x": 59.3, "y": 56.6 },
       "images": {
-        "stand": "images/",
-        "aim": "images/"
+        "stand": "images/train/main_1.png",
+        "aim": "images/train/main_2.png"
+      }
+    },
+    {
+      "id": "main_molly_2",
+      "type": "molotov",
+      "side": "CT",
+      "name": "Main",
+      "target": "",
+      "variant": "",
+      "description": "Running + Left and right click throw",
+      "x": 42.5,
+      "y": 40.1,
+      "throw": { "x": 60.8, "y": 60.5 },
+      "images": {
+        "stand": "images/train/main_3.png",
+        "aim": "images/train/main_4.png"
       }
     }
 ],
@@ -21,9 +85,9 @@
 
   "executes": [
     {
-      "id": "",
-      "name": "",
-      "items": ["", "", ""]
+      "id": "instas_train",
+      "name": "Camera/Sandwich/Connector Instas",
+      "items": ["insta_camera", "insta_sandwich", "insta_connector"]
     }
     ]
 }
