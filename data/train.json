@@ -79,6 +79,118 @@
         "stand": "images/train/main_3.png",
         "aim": "images/train/main_4.png"
       }
+    },
+    {
+      "id": "main_flash_1",
+      "type": "flash",
+      "side": "T",
+      "name": "Main first",
+      "target": "",
+      "variant": "",
+      "description": "Jumpthrow",
+      "x": 44.7,
+      "y": 36.9,
+      "throw": { "x": 41.8, "y": 16.6 },
+      "images": {
+        "stand": "images/train/main_pop_1.png",
+        "aim": "images/train/main_pop_2.png"
+      }
+    },
+    {
+      "id": "main_flash_2",
+      "type": "flash",
+      "side": "T",
+      "name": "Main second",
+      "target": "",
+      "variant": "",
+      "description": "W + Jumpthrow",
+      "x": 44.1,
+      "y": 43.3,
+      "throw": { "x": 41.8, "y": 16.6 },
+      "images": {
+        "stand": "images/train/main_pop_1.png",
+        "aim": "images/train/main_pop_3.png"
+      }
+    },
+    {
+      "id": "con_molly",
+      "type": "molotov",
+      "side": "T",
+      "name": "Connector",
+      "target": "",
+      "variant": "",
+      "description": "Running + Throw",
+      "x": 68.0,
+      "y": 67.2,
+      "throw": { "x": 30.0, "y": 72.0 },
+      "images": {
+        "stand": "images/train/con_molly_1.png",
+        "aim": "images/train/con_molly_2.png"
+      }
+    },
+    {
+      "id": "b_pop",
+      "type": "flash",
+      "side": "T",
+      "name": "B site",
+      "target": "",
+      "variant": "",
+      "description": "Throw",
+      "x": 46.7,
+      "y": 67.1,
+      "throw": { "x": 30.0, "y": 72.0 },
+      "images": {
+        "stand": "images/train/con_molly_1.png",
+        "aim": "images/train/b_pop.png"
+      }
+    },
+    {
+      "id": "b_smoke",
+      "type": "smoke",
+      "side": "T",
+      "name": "Cross",
+      "target": "",
+      "variant": "",
+      "description": "Throw",
+      "x": 53.0,
+      "y": 68.2,
+      "throw": { "x": 30.8, "y": 65.3 },
+      "images": {
+        "stand": "images/train/b_smoke_1.png",
+        "aim": "images/train/b_smoke_2.png"
+      }
+    },
+    {
+      "id": "camera_smoke",
+      "type": "smoke",
+      "side": "T",
+      "name": "Camera",
+      "target": "camera",
+      "variant": "T-Spawn",
+      "description": "Jumpthrow",
+      "x": 70.3,
+      "y": 46.0,
+      "throw": { "x": 22.9, "y": 18.6 },
+      "images": {
+        "stand": "images/train/camera_1.png",
+        "aim": "images/train/camera_2.png"
+      }
+    },
+    {
+      "id": "con_smoke",
+      "type": "smoke",
+      "side": "T",
+      "name": "Connector",
+      "target": "connector",
+      "variant": "T-Spawn",
+      "description": "Jumpthrow",
+      "x": 59.9,
+      "y": 58.0,
+      "throw": { "x": 22.9, "y": 18.6 },
+      "images": {
+        "stand": "images/train/camera_1.png",
+        "aim": "images/train/connector_0.png"
+      }
     }
 ],
 
