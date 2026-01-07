@@ -397,29 +397,60 @@ body{
   bottom: 12px;
   z-index: 2500;
   text-align:left;
+  display:flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
 }
 
 #exec-grid{
-  display:grid;
-  grid-template-columns: repeat(3, max-content);
-  gap: 8px;
-  align-items:start;
+  display:flex;
+  flex-direction: column-reverse; /* stack upward (new ones appear above) */
+  gap: 10px;
+  margin-bottom:12px;
+  align-items:flex-start;
 }
 
 .exec-btn{
-  padding: 8px 12px;
-  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 10px;
   background: rgba(0,0,0,0.55);
   border: 1px solid rgba(255,255,255,0.14);
   color: white;
   font-weight: 900;
+  font-size: 12px;
+  line-height: 1;
   cursor:pointer;
   backdrop-filter: blur(10px);
+  position: relative;
+  isolation: isolate; /* prevent hover glow from visually affecting siblings */
 }
-.exec-btn:hover{ filter: brightness(1.15); }
+.exec-btn:hover{ filter: brightness(1.15); z-index: 5; }
+
+/* Side colors (CS2 vibe)
+   - T: warm yellow/orange
+   - CT: light blue */
+.exec-btn.exec-t{
+  border-color: rgba(242,183,5,0.55);
+  background: rgba(242,183,5,0.16);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.35) inset, 0 0 18px rgba(242,183,5,0.18);
+}
+.exec-btn.exec-ct{
+  border-color: rgba(79,163,255,0.55);
+  background: rgba(79,163,255,0.16);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.35) inset, 0 0 18px rgba(79,163,255,0.18);
+}
+.exec-btn.exec-t:hover{
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.35) inset, 0 0 22px rgba(242,183,5,0.32);
+}
+.exec-btn.exec-ct:hover{
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.35) inset, 0 0 22px rgba(79,163,255,0.32);
+}
 
 .exec-clear{
-  margin-top: 10px;
+  margin-top: 0;
   padding: 6px 10px;
   font-size: 12px;
   font-weight: 800;
@@ -440,20 +471,20 @@ body{
   position: fixed;
   right: 420px; /* before right panel */
   bottom: 12px;
-  width: 320px;
+  width: 260px;
   z-index: 2600;
   background: rgba(0,0,0,0.55);
   border: 1px solid rgba(255,255,255,0.14);
-  border-radius: 18px;
-  padding: 14px;
+  border-radius: 16px;
+  padding: 10px;
   backdrop-filter: blur(10px);
   text-align:left;
 }
 
 .groups-title{
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 900;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .groups-list{ display:flex; flex-direction:column; gap: 10px; }
@@ -468,24 +499,26 @@ body{
 .group-name{
   flex: 1;
   text-align:left;
-  padding: 10px 12px;
+  padding: 8px 10px;
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.12);
   background: rgba(255,255,255,0.06);
   color: white;
   font-weight: 900;
+  font-size: 12px;
   cursor:pointer;
 }
 .group-name:hover{ filter: brightness(1.12); }
 
 .icon-btn{
-  width: 38px;
-  height: 38px;
+  width: 32px;
+  height: 32px;
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.12);
   background: rgba(255,255,255,0.06);
   color: rgba(255,255,255,0.92);
   cursor:pointer;
+  font-size: 12px;
 }
 .icon-btn:hover{ filter: brightness(1.12); }
 .icon-btn.danger:hover{
@@ -494,14 +527,15 @@ body{
 }
 
 .groups-create{
-  margin-top: 12px;
+  margin-top: 10px;
   width:100%;
-  padding: 10px 12px;
+  padding: 8px 10px;
   border-radius: 14px;
   border: 1px solid rgba(99,102,241,0.55);
   background: rgba(99,102,241,0.18);
   color: white;
   font-weight: 900;
+  font-size: 12px;
   cursor:pointer;
 }
 .groups-create:hover{ filter: brightness(1.12); }
@@ -878,7 +912,7 @@ body{
   .viewer-page{ padding: 0 18px 18px; }
   #back-btn{ left: 12px; }
   #executes{ left: 12px; }
-  .groups-dock{ right: 12px; width: min(340px, 92vw); }
+  .groups-dock{ right: 12px; width: min(280px, 92vw); }
   #panels-left, #panels-right{
     position: fixed;
     left: 0; right: 0;

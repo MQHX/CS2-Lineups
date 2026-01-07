@@ -414,11 +414,19 @@ function updateFilters() {
   const typesToUse = getActivePills(pillType, ["smoke", "flash", "molotov"]);
   const sidesToUse = getActivePills(pillSide, ["T", "CT"]);
 
+  // ✅ If no type OR no side is selected => hide everything
+  const noTypeSelected = pillType.every(b => !b.classList.contains("active"));
+  const noSideSelected = pillSide.every(b => !b.classList.contains("active"));
+  const nothingSelected = noTypeSelected || noSideSelected;
+
   markers.forEach(m => {
     const okType = typesToUse.includes(m.type);
     const okSide = sidesToUse.includes(m.side);
-    m.el.style.display = (okType && okSide) ? "block" : "none";
+    m.el.style.display = (!nothingSelected && okType && okSide) ? "block" : "none";
   });
+
+  // Keep executes in sync with the same filters
+  updateExecFilters(typesToUse, sidesToUse, nothingSelected);
 }
 
 function wirePillGroup(btns) {
@@ -911,24 +919,107 @@ function openExecute(exec) {
 function renderExecutes() {
   if (!executesBox || !execGrid) return;
 
-  // Clear button always works
+  // Clear button is global (closes panels), must always be available
   if (execClear) execClear.onclick = closeAllPanels;
-
-  if (!Array.isArray(executes) || executes.length === 0) {
-    executesBox.style.display = "none";
-    return;
-  }
 
   executesBox.style.display = "block";
   execGrid.innerHTML = "";
 
+  // If there are no executes, keep only the Clear button visible
+  if (!Array.isArray(executes) || executes.length === 0) {
+    execGrid.style.display = "none";
+    return;
+  }
+
+  execGrid.style.display = "grid";
+
   executes.forEach(exec => {
     const btn = document.createElement("button");
     btn.className = "exec-btn";
-    btn.textContent = exec.name || exec.id;
+
+    const side = String(exec.side || "").trim().toUpperCase();
+    if (side === "T") btn.classList.add("exec-t");
+    else if (side === "CT") btn.classList.add("exec-ct");
+
+    // Bonus prefix
+    const prefix = (side === "T") ? "T • " : (side === "CT") ? "CT • " : "";
+    btn.textContent = prefix + (exec.name || exec.id || "Execute");
+
+    // Store side for filtering
+    btn.dataset.side = side;
+
+    // Store types present in this execute (derived from lineup items)
+    const typeSet = new Set();
+    if (exec && Array.isArray(exec.items)) {
+      exec.items.forEach(id => {
+        const lu = lineupsById.get(id);
+        if (lu && lu.type) typeSet.add(String(lu.type).trim());
+      });
+    }
+    btn.dataset.types = Array.from(typeSet).join(",");
+
     btn.onclick = () => openExecute(exec);
     execGrid.appendChild(btn);
   });
+
+  // Apply current filters to executes immediately
+  updateExecFilters();
+}
+
+
+function updateExecFilters(typesToUse, sidesToUse, nothingSelected) {
+  if (!executesBox || !execGrid) return;
+
+  // Determine whether NO pill is active (=> hide everything)
+  const noTypeSelected = pillType.every(b => !b.classList.contains("active"));
+  const noSideSelected = pillSide.every(b => !b.classList.contains("active"));
+  const none = (typeof nothingSelected === "boolean") ? nothingSelected : (noTypeSelected || noSideSelected);
+
+  // With the old fallback logic, types/sides may come in as "all values".
+  // We still use them for normal filtering when something is selected.
+  const types = (Array.isArray(typesToUse) && typesToUse.length)
+    ? typesToUse
+    : getActivePills(pillType, ["smoke", "flash", "molotov"]);
+
+  const sides = (Array.isArray(sidesToUse) && sidesToUse.length)
+    ? sidesToUse
+    : getActivePills(pillSide, ["T", "CT"]);
+
+  const btns = Array.from(execGrid.querySelectorAll(".exec-btn"));
+
+  // Never hide the whole box: Clear closes panels too
+  executesBox.style.display = "block";
+
+  if (btns.length === 0) {
+    execGrid.style.display = "none";
+    return;
+  }
+
+  if (none) {
+    btns.forEach(b => (b.style.display = "none"));
+    execGrid.style.display = "none";
+    return;
+  }
+
+  let anyVisible = false;
+
+  btns.forEach(btn => {
+    const side = String(btn.dataset.side || "").toUpperCase();
+    const okSide = !side || sides.includes(side);
+
+    const typeList = String(btn.dataset.types || "")
+      .split(",")
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    const okType = (typeList.length === 0) ? true : typeList.some(t => types.includes(t));
+
+    const show = okSide && okType;
+    btn.style.display = show ? "inline-flex" : "none";
+    if (show) anyVisible = true;
+  });
+
+  execGrid.style.display = anyVisible ? (execGrid.style.display === "grid" ? "grid" : "grid") : "none";
 }
 
 // --------------------------
