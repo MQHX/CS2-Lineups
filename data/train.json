@@ -199,11 +199,13 @@
     {
       "id": "instas_train",
       "name": "Camera/Sandwich/Connector Instas",
+      "side": "T",
       "items": ["insta_camera", "insta_sandwich", "insta_connector"]
     },
     {
       "id": "b_exec",
       "name": "B execute",
+      "side": "T",
       "items": ["b_smoke", "b_pop", "con_molly"]
     }
     ]

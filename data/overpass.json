@@ -381,16 +381,19 @@
     {
       "id": "A_exec_banana",
       "name": "A Execute (banana)",
+      "side": "T",
       "items": ["bank_smoke", "trash_smoke", "truck_molly"]
     },
   {
       "id": "A_exec_long",
       "name": "A Execute (long)",
+      "side": "T",
       "items": ["bank_smoke_2", "trash_smoke_2", "truck_molly_2"]
     },
   {
       "id": "B_exec_short",
       "name": "B Execute (short)",
+      "side": "T",
       "items": ["heaven_smoke", "abc_smoke", "toxic_molly"]
     }
   ]

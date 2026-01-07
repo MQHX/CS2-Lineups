@@ -376,26 +376,31 @@
     {
       "id": "a_execute_1",
       "name": "A execute (from T-Roof)",
+      "side": "T",
       "items": ["stairs_smoke", "jungle_smoke", "sandwich_molly"]
     },
     {
       "id": "a_execute_2",
       "name": "A execute (from Ramp)",
+      "side": "T",
       "items": ["stairs_smoke_2", "jungle_smoke_2", "ticket_smoke_2"]
     },
     {
       "id": "a_rush",
       "name": "A rush (from T-spawn)",
+      "side": "T",
       "items": ["stairs_smoke_3", "jungle_smoke_3"]
     },
     {
       "id": "b_exec",
       "name": "B execute",
+      "side": "T",
       "items": ["b_window", "b_short","b_door"]
     },
     {
       "id": "window_insta_2",
       "name": "Insta window",
+      "side": "T",
       "items": ["window_insta"]
     }
     ]

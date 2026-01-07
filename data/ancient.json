@@ -183,16 +183,19 @@
     {
       "id": "a_exec",
       "name": "A execute",
+      "side": "T",
       "items": ["ct_from_main", "donut_from_main"]
     },
     {
       "id": "b_exec",
       "name": "B execute",
+      "side": "T",
       "items": ["long", "short","ninja_molly"]
     },
     {
       "id": "b_retake",
       "name": "B retake",
+      "side": "CT",
       "items": ["ramp_smoke", "site_molly"]
     }
     ]
