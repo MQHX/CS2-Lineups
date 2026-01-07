@@ -1,19 +1,179 @@
 {
   "lineups": [
     {
-      "id": "",
-      "type": "",
-      "side": "",
-      "name": "",
+      "id": "mid_flash",
+      "type": "flash",
+      "side": "T",
+      "name": "Mid (doesn't flash teammates)",
+      "target": "",
+      "variant": "",
+      "description": "W + Jumpthrow",
+      "x": 44.0,
+      "y": 57.0,
+      "throw": { "x": 43.1, "y": 82.7 },
+      "images": {
+        "stand": "images/ancient/mid_flash_1.png",
+        "aim": "images/ancient/mid_flash_2.png"
+      }
+    },
+    {
+      "id": "ct_from_main",
+      "type": "smoke",
+      "side": "T",
+      "name": "CT",
+      "target": "",
+      "variant": "",
+      "description": "Crouch + Jumpthrow",
+      "x": 37.8,
+      "y": 18.8,
+      "throw": { "x": 16.0, "y": 59.7 },
+      "images": {
+        "stand": "images/ancient/a_exec.png",
+        "aim": "images/ancient/a_ct.png"
+      }
+    },
+    {
+      "id": "donut_from_main",
+      "type": "smoke",
+      "side": "T",
+      "name": "Donut",
+      "target": "",
+      "variant": "",
+      "description": "W + Jumpthrow",
+      "x": 30.9,
+      "y": 31.7,
+      "throw": { "x": 16.0, "y": 59.7 },
+      "images": {
+        "stand": "images/ancient/a_exec.png",
+        "aim": "images/ancient/a_donut.png"
+      }
+    },
+    {
+      "id": "long",
+      "type": "smoke",
+      "side": "T",
+      "name": "Long",
+      "target": "",
+      "variant": "",
+      "description": "Jumpthrow",
+      "x": 81.9,
+      "y": 33.8,
+      "throw": { "x": 81.7, "y": 69.9 },
+      "images": {
+        "stand": "images/ancient/b_exec.png",
+        "aim": "images/ancient/b_long.png"
+      }
+    },
+    {
+      "id": "short",
+      "type": "smoke",
+      "side": "T",
+      "name": "Short",
+      "target": "",
+      "variant": "",
+      "description": "Jumpthrow",
+      "x": 71.3,
+      "y": 32.0,
+      "throw": { "x": 81.7, "y": 69.9 },
+      "images": {
+        "stand": "images/ancient/b_exec.png",
+        "aim": "images/ancient/b_short.png"
+      }
+    },
+    {
+      "id": "ninja_molly",
+      "type": "molotov",
+      "side": "T",
+      "name": "Ninja",
+      "target": "",
+      "variant": "",
+      "description": "W + Jumpthrow",
+      "x": 71.2,
+      "y": 44.5,
+      "throw": { "x": 81.7, "y": 69.9 },
+      "images": {
+        "stand": "images/ancient/b_exec.png",
+        "aim": "images/ancient/b_ninja.png"
+      }
+    },
+    {
+      "id": "ramp_smoke",
+      "type": "smoke",
+      "side": "CT",
+      "name": "Ramp",
+      "target": "",
+      "variant": "",
+      "description": "Jumpthrow",
+      "x": 81.9,
+      "y": 44.9,
+      "throw": { "x": 76.8, "y": 20.9 },
+      "images": {
+        "stand": "images/ancient/b_retake.png",
+        "aim": "images/ancient/b_ramp.png"
+      }
+    },
+    {
+      "id": "site_molly",
+      "type": "molotov",
+      "side": "CT",
+      "name": "Site",
+      "target": "",
+      "variant": "",
+      "description": "Jumpthrow",
+      "x": 71.7,
+      "y": 41.0,
+      "throw": { "x": 76.8, "y": 20.9 },
+      "images": {
+        "stand": "images/ancient/b_retake.png",
+        "aim": "images/ancient/b_site.png"
+      }
+    },
+    {
+      "id": "cheetah_smoke",
+      "type": "smoke",
+      "side": "T",
+      "name": "Cheetah",
+      "target": "",
+      "variant": "",
+      "description": "Jumpthrow",
+      "x": 61.2,
+      "y": 53.7,
+      "throw": { "x": 44.1, "y": 88.0 },
+      "images": {
+        "stand": "images/ancient/cheetah_1.png",
+        "aim": "images/ancient/cheetah_2.png"
+      }
+    },
+    {
+      "id": "lane_molly",
+      "type": "molotov",
+      "side": "T",
+      "name": "Lane",
+      "target": "",
+      "variant": "",
+      "description": "Running (until 3/4 of left side wall) + Left and right click Jumpthrow",
+      "x": 70.9,
+      "y": 56.0,
+      "throw": { "x": 70.7, "y": 30.2 },
+      "images": {
+        "stand": "images/ancient/lane_1.png",
+        "aim": "images/ancient/lane_2.png"
+      }
+    },
+    {
+      "id": "insta_elbow",
+      "type": "smoke",
+      "side": "CT",
+      "name": "Elbow",
       "target": "",
       "variant": "",
       "description": "",
-      "x": 38.1,
-      "y": 41.0,
-      "throw": { "x": 84.6, "y": 32.8 },
+      "x": 36.2,
+      "y": 56.3,
+      "throw": { "x": 48.5, "y": 13.5 },
       "images": {
-        "stand": "images/",
-        "aim": "images/"
+        "stand": "images/ancient/insta_elbow.png",
+        "aim": ""
       }
     }
 ],
@@ -21,9 +181,19 @@
 
   "executes": [
     {
-      "id": "",
-      "name": "",
-      "items": ["", "", ""]
+      "id": "a_exec",
+      "name": "A execute",
+      "items": ["ct_from_main", "donut_from_main"]
+    },
+    {
+      "id": "b_exec",
+      "name": "B execute",
+      "items": ["long", "short","ninja_molly"]
+    },
+    {
+      "id": "b_retake",
+      "name": "B retake",
+      "items": ["ramp_smoke", "site_molly"]
     }
     ]
 }
