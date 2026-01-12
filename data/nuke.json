@@ -1,19 +1,131 @@
 {
   "lineups": [
     {
-      "id": "",
-      "type": "",
-      "side": "",
-      "name": "",
+      "id": "outside_wide_1",
+      "type": "smoke",
+      "side": "T",
+      "name": "Outside wide 1",
       "target": "",
       "variant": "",
-      "description": "",
-      "x": 38.1,
-      "y": 41.0,
-      "throw": { "x": 84.6, "y": 32.8 },
+      "description": "Jumpthrow",
+      "x": 59.7,
+      "y": 65.1,
+      "throw": { "x": 28.2, "y": 53.7 },
       "images": {
-        "stand": "images/",
-        "aim": "images/"
+        "stand": "images/nuke/wide_1.png",
+        "aim": "images/nuke/wide_2.png"
+      }
+    },
+    {
+      "id": "outside_wide_2",
+      "type": "smoke",
+      "side": "T",
+      "name": "Outside wide 2",
+      "target": "",
+      "variant": "",
+      "description": "Jumpthrow",
+      "x": 62.1,
+      "y": 66.9,
+      "throw": { "x": 28.2, "y": 53.7 },
+      "images": {
+        "stand": "images/nuke/wide_1.png",
+        "aim": "images/nuke/wide_3.png"
+      }
+    },
+    {
+      "id": "outside_1",
+      "type": "smoke",
+      "side": "T",
+      "name": "Outside 1",
+      "target": "",
+      "variant": "",
+      "description": "Jumpthrow",
+      "x": 58.7,
+      "y": 70.0,
+      "throw": { "x": 29.2, "y": 55.2 },
+      "images": {
+        "stand": "images/nuke/outside_1.png",
+        "aim": "images/nuke/outside_2.png"
+      }
+    },
+    {
+      "id": "outside_2",
+      "type": "smoke",
+      "side": "T",
+      "name": "Outside 2",
+      "target": "",
+      "variant": "",
+      "description": "Jumpthrow",
+      "x": 61.7,
+      "y": 70.0,
+      "throw": { "x": 29.2, "y": 55.2 },
+      "images": {
+        "stand": "images/nuke/outside_1.png",
+        "aim": "images/nuke/outside_2.png"
+      }
+    },
+    {
+      "id": "main_1",
+      "type": "smoke",
+      "side": "T",
+      "name": "Main (outside)",
+      "target": "",
+      "variant": "",
+      "description": "Jumpthrow",
+      "x": 57.8,
+      "y": 61.6,
+      "throw": { "x": 24.5, "y": 56.8 },
+      "images": {
+        "stand": "images/nuke/main_1.png",
+        "aim": "images/nuke/main_2.png"
+      }
+    },
+    {
+      "id": "squeaky",
+      "type": "smoke",
+      "side": "T",
+      "name": "Squeaky lurk",
+      "target": "",
+      "variant": "",
+      "description": "Jumpthrow",
+      "x": 52.9,
+      "y": 57.2,
+      "throw": { "x": 34.6, "y": 52.1 },
+      "images": {
+        "stand": "images/nuke/squeaky_1.png",
+        "aim": "images/nuke/squeaky_2.png"
+      }
+    },
+    {
+      "id": "a_molly",
+      "type": "molotov",
+      "side": "T",
+      "name": "A backsite",
+      "target": "",
+      "variant": "",
+      "description": "Jumpthrow",
+      "x": 55.8,
+      "y": 47.3,
+      "throw": { "x": 46.2, "y": 50.0 },
+      "images": {
+        "stand": "images/nuke/a_1.png",
+        "aim": "images/nuke/a_3.png"
+      }
+    },
+    {
+      "id": "a_flash",
+      "type": "flash",
+      "side": "T",
+      "name": "A site",
+      "target": "",
+      "variant": "",
+      "description": "Jumpthrow",
+      "x": 53.4,
+      "y": 46.3,
+      "throw": { "x": 46.2, "y": 50.0 },
+      "images": {
+        "stand": "images/nuke/a_1.png",
+        "aim": "images/nuke/a_2.png"
       }
     }
 ],
@@ -21,10 +133,22 @@
 
   "executes": [
     {
-      "id": "",
-      "name": "",
-      "side": "",
-      "items": ["", "", ""]
+      "id": "outside_wide",
+      "name": "Outside (wide)",
+      "side": "T",
+      "items": ["outside_wide_1", "outside_wide_2"]
+    },
+    {
+      "id": "outside",
+      "name": "Outside",
+      "side": "T",
+      "items": ["outside_1", "outside_2"]
+    },
+    {
+      "id": "a_exec",
+      "name": "A exec",
+      "side": "T",
+      "items": ["a_molly", "a_flash"]
     }
     ]
 }
