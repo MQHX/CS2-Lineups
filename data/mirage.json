@@ -386,12 +386,6 @@
       "items": ["stairs_smoke_2", "jungle_smoke_2", "ticket_smoke_2"]
     },
     {
-      "id": "a_rush",
-      "name": "A rush (from T-spawn)",
-      "side": "T",
-      "items": ["stairs_smoke_3", "jungle_smoke_3"]
-    },
-    {
       "id": "b_exec",
       "name": "B execute",
       "side": "T",

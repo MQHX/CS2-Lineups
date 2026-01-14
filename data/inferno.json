@@ -181,8 +181,8 @@
       "type": "smoke",
       "side": "T",
       "name": "Moto",
-      "target": "",
-      "variant": "",
+      "target": "moto",
+      "variant": "Mid",
       "description": "Jumpthrow",
       "x": 87.5,
       "y": 61.9,
@@ -335,6 +335,38 @@
         "stand": "images/inferno/a_1.png",
         "aim": "images/inferno/a_3.png"
       }
+    },
+    {
+      "id": "moto_2",
+      "type": "smoke",
+      "side": "T",
+      "name": "Moto",
+      "target": "moto",
+      "variant": "Second mid",
+      "description": "Throw",
+      "x": 87.5,
+      "y": 61.9,
+      "throw": { "x": 52.9, "y": 83.1 },
+      "images": {
+        "stand": "images/inferno/moto_3.png",
+        "aim": "images/inferno/moto_4.png"
+      }
+    },
+    {
+      "id": "short_2",
+      "type": "smoke",
+      "side": "T",
+      "name": "Short",
+      "target": "",
+      "variant": "",
+      "description": "Left and right click + Jumpthrow",
+      "x": 77.3,
+      "y": 77.6,
+      "throw": { "x": 52.9, "y": 83.1 },
+      "images": {
+        "stand": "images/inferno/moto_3.png",
+        "aim": "images/inferno/short.png"
+      }
     }
 ],
 
@@ -351,6 +383,12 @@
       "name": "A split",
       "side": "T",
       "items": ["library_smoke", "arche_smoke"]
+    },
+    {
+      "id": "A_rush",
+      "name": "A apps rush",
+      "side": "T",
+      "items": ["moto_2","short_2"]
     },
     {
       "id": "mid_insta",
