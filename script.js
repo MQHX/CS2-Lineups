@@ -310,30 +310,139 @@ document.addEventListener("keydown", (e) => {
 // 5) Variants chooser (uses modal)
 // --------------------------
 function openChooser(group) {
-  const sorted = group.slice().sort((a, b) => (a.variant || a.name || "").localeCompare(b.variant || b.name || ""));
+  const sorted = (group || []).slice().sort((a, b) => (a.variant || a.name || "").localeCompare(b.variant || b.name || ""));
+  if (sorted.length === 0) return;
+
   const title = `${sorted[0]?.name || "Lineup"} — ${sorted.length} variants`;
 
-  const rows = sorted.map(lu => {
+  // Use the currently loaded map image as the overview background
+  const mapSrc = (map && (map.currentSrc || map.src)) ? String(map.currentSrc || map.src).trim() : "";
+
+  const rows = sorted.map((lu, i) => {
     const label = lu.variant || lu.name || lu.id;
-    return `<button class="ui-list-row" data-id="${lu.id}">${escapeHtml(label)}</button>`;
+    // data-idx lets us correlate list -> pin order
+    return `<button class="ui-list-row vc-row" data-id="${escapeHtml(lu.id)}" data-idx="${i}"><span class="vc-row-idx">${i + 1}.</span><span class="vc-row-label">${escapeHtml(label)}</span></button>`;
   }).join("");
+
+  const body = `
+    <div class="vc-wrap">
+      <div class="vc-left">
+        <div class="ui-list vc-list">${rows}</div>
+      </div>
+
+      <div class="vc-right">
+        <div class="vc-head">
+          <div class="vc-head-title">Overview</div>
+          <div class="vc-head-sub">Throw position</div>
+        </div>
+
+        <div class="vc-map" aria-label="Throw overview">
+          ${mapSrc ? `<img class="vc-map-img" src="${escapeHtml(mapSrc)}" alt="">` : `<div class="vc-map-empty">Map</div>`}
+          <div class="vc-map-layer"></div>
+        </div>
+
+        <div class="vc-hint"></div>
+      </div>
+    </div>
+  `;
 
   openModal({
     title,
-    body: `<div class="ui-list">${rows}</div>`,
+    body,
     actions: [
       { label: "Close", className: "ui-btn ui-btn-weak", onClick: closeModal }
     ]
   });
 
-  uiModalBody.querySelectorAll(".ui-list-row").forEach(btn => {
+  // Wire rows
+  const rowEls = Array.from(uiModalBody.querySelectorAll(".ui-list-row.vc-row"));
+  const layer = uiModalBody.querySelector(".vc-map-layer");
+  const hint = uiModalBody.querySelector(".vc-hint");
+
+  if (!layer) {
+    // Fallback: behave like the old chooser (still clickable)
+    rowEls.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = btn.getAttribute("data-id");
+        const lu = lineupsById.get(id);
+        closeModal();
+        if (lu) openPopup(lu);
+      });
+    });
+    return;
+  }
+
+  // Build pins for each variant (based on throw coords from JSON)
+  const pinsById = new Map();
+
+  sorted.forEach((lu, idx) => {
+    const pin = document.createElement("div");
+    pin.className = `vc-pin ${lu.type || ""}`.trim();
+    pin.dataset.id = lu.id || "";
+    pin.dataset.idx = String(idx);
+
+    const tx = lu?.throw?.x;
+    const ty = lu?.throw?.y;
+
+    // If throw is missing, keep the pin hidden but the row remains usable
+    if (typeof tx === "number" && typeof ty === "number" && isFinite(tx) && isFinite(ty)) {
+      pin.style.left = tx + "%";
+      pin.style.top = ty + "%";
+      pin.innerHTML = `<span>${idx + 1}</span>`;
+    } else {
+      pin.classList.add("is-missing");
+      pin.style.left = "50%";
+      pin.style.top = "50%";
+      pin.innerHTML = `<span>?</span>`;
+    }
+
+    layer.appendChild(pin);
+    pinsById.set(lu.id, pin);
+  });
+
+  function setActive(id) {
+    pinsById.forEach((pin) => pin.classList.remove("is-active"));
+    rowEls.forEach((r) => r.classList.remove("is-active"));
+
+    if (!id) return;
+
+    const pin = pinsById.get(id);
+    const row = rowEls.find(r => r.getAttribute("data-id") === id);
+
+    if (pin) pin.classList.add("is-active");
+    if (row) row.classList.add("is-active");
+
+  }
+
+  // Hover / focus preview
+  rowEls.forEach(btn => {
+    const id = btn.getAttribute("data-id");
+
+    btn.addEventListener("mouseenter", () => setActive(id));
+    btn.addEventListener("focus", () => setActive(id));
+
+    btn.addEventListener("mouseleave", () => {
+      // keep last active on mouseleave (cleaner UX), do nothing
+    });
+
+    // Touch support: a first tap previews, second tap selects
+    btn.addEventListener("pointerdown", (e) => {
+      if (e.pointerType === "touch") {
+        const isAlready = btn.classList.contains("is-active");
+        setActive(id);
+        if (!isAlready) e.preventDefault();
+      }
+    });
+
     btn.addEventListener("click", () => {
-      const id = btn.getAttribute("data-id");
       const lu = lineupsById.get(id);
       closeModal();
       if (lu) openPopup(lu);
     });
   });
+
+  // Default highlight: first row
+  if (rowEls[0]) setActive(rowEls[0].getAttribute("data-id"));
 }
 
 function escapeHtml(s) {
