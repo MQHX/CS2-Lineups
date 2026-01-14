@@ -118,7 +118,7 @@ body{
   inset:0;
   width:100%;
   height:100%;
-  object-fit: cover;
+  object-fit: contain;
   display:block;
 }
 
@@ -610,7 +610,7 @@ body{
 #lightbox .lb-thumb img{
   width: 100%;
   height: 78px;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 10px;
   border: 1px solid rgba(255,255,255,0.10);
 }
@@ -721,6 +721,153 @@ body{
   cursor:pointer;
 }
 .ui-list-row:hover{ filter: brightness(1.12); }
+
+/* --------------------------
+   Variants chooser — Map overview (right)
+   - Shows throw positions for each variant
+   -------------------------- */
+.vc-wrap{
+  display:flex;
+  gap: 14px;
+  align-items: stretch;
+}
+
+.vc-left{
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.vc-right{
+  width: 270px;
+  flex: 0 0 270px;
+  text-align:left;
+}
+
+.vc-head{ margin-bottom: 10px; }
+.vc-head-title{
+  font-weight: 900;
+  letter-spacing: 0.2px;
+}
+.vc-head-sub{
+  margin-top: 2px;
+  color: rgba(255,255,255,0.65);
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.vc-map{
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.35);
+  box-shadow: 0 18px 60px rgba(0,0,0,0.35);
+}
+
+.vc-map-img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit: contain;
+  display:block;
+  filter: brightness(0.92) saturate(0.92);
+}
+
+.vc-map-empty{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight: 900;
+  color: rgba(255,255,255,0.75);
+}
+
+.vc-map-layer{
+  position:absolute;
+  inset:0;
+}
+
+.vc-hint{
+  margin-top: 10px;
+  color: rgba(255,255,255,0.70);
+  font-weight: 800;
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+/* variant rows with numbering */
+.ui-list-row.vc-row{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+}
+
+.vc-row-idx{
+  width: 28px;
+  flex: 0 0 28px;
+  text-align: right;
+  color: rgba(255,255,255,0.68);
+  font-weight: 900;
+  letter-spacing: 0.2px;
+}
+
+.vc-row-label{
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* row highlight (optional) */
+.ui-list-row.vc-row.is-active{
+  border-color: rgba(99,102,241,0.55);
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.18);
+}
+
+/* pins */
+.vc-pin{
+  position:absolute;
+  width: 16px;
+  height: 16px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,0.22);
+  background: rgba(0,0,0,0.55);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.45);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size: 9px;
+  font-weight: 900;
+  color: white;
+  user-select:none;
+  pointer-events:none;
+}
+
+.vc-pin.smoke{ border-color: rgba(111,168,255,0.85); box-shadow: 0 0 0 2px rgba(111,168,255,0.18), 0 10px 28px rgba(0,0,0,0.45); }
+.vc-pin.flash{ border-color: rgba(255,217,102,0.90); box-shadow: 0 0 0 2px rgba(255,217,102,0.18), 0 10px 28px rgba(0,0,0,0.45); }
+.vc-pin.molotov{ border-color: rgba(255,140,66,0.90); box-shadow: 0 0 0 2px rgba(255,140,66,0.18), 0 10px 28px rgba(0,0,0,0.45); }
+
+.vc-pin.is-active{
+  transform: translate(-50%, -50%) scale(1.28);
+  filter: brightness(1.15);
+  box-shadow: 0 0 0 6px rgba(99,102,241,0.18), 0 18px 46px rgba(0,0,0,0.55);
+  z-index: 2;
+}
+
+.vc-pin.is-missing{
+  opacity: 0.55;
+  border-style: dashed;
+}
+
+@media (max-width: 640px){
+  .vc-wrap{ flex-direction: column; }
+  .vc-right{ width: auto; flex: 1 1 auto; }
+  .vc-map{ width: min(420px, 100%); margin: 0 auto; }
+}
+
 
 /* Select lineups modal */
 .select-top{ display:flex; flex-direction:column; gap: 10px; }
@@ -1301,243 +1448,4 @@ body{
 .marker::before,
 .marker::after {
   content: none !important;
-}
-
-
-/* --------------------------
-   Editor (editor.html)
-   -------------------------- */
-
-/* Editor layout */
-body{
-  min-height: 100vh;
-}
-
-.editor-layout{
-  max-width: 1240px;
-  margin: 0 auto 28px;
-  padding: 0 18px 28px;
-  display: grid;
-  grid-template-columns: 360px 1fr;
-  gap: 16px;
-}
-
-.editor-left,
-.editor-right{
-  background: var(--panel);
-  border: 1px solid rgba(255,255,255,0.10);
-  border-radius: 18px;
-  padding: 16px 16px 14px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.25);
-  backdrop-filter: blur(10px);
-}
-
-.editor-left h2,
-.editor-right h2{
-  margin: 6px 0 10px;
-  font-size: 26px;
-  letter-spacing: .2px;
-}
-
-.editor-actions{
-  display:flex;
-  gap: 10px;
-  margin: 10px 0 12px;
-}
-
-.editor-btn{
-  appearance: none;
-  border: 1px solid rgba(255,255,255,.16);
-  background: rgba(255,255,255,.06);
-  color: var(--text);
-  padding: 9px 12px;
-  border-radius: 12px;
-  cursor: pointer;
-  font-weight: 700;
-}
-.editor-btn:hover{
-  border-color: rgba(99,102,241,.7);
-  background: rgba(99,102,241,.10);
-}
-.editor-btn.active{
-  border-color: rgba(99,102,241,.9);
-  background: rgba(99,102,241,.16);
-}
-.editor-btn.primary{
-  border-color: rgba(99,102,241,.9);
-  background: rgba(99,102,241,.22);
-}
-.editor-btn.danger{
-  border-color: rgba(239,68,68,.7);
-  background: rgba(239,68,68,.10);
-}
-.editor-btn.danger:hover{
-  border-color: rgba(239,68,68,.95);
-  background: rgba(239,68,68,.16);
-}
-
-.editor-btn-weak{
-  opacity: .9;
-}
-
-.editor-list{
-  display:flex;
-  flex-direction: column;
-  gap: 10px;
-  max-height: 360px;
-  overflow: auto;
-  padding-right: 4px;
-}
-
-.editor-row{
-  width: 100%;
-  text-align: left;
-  border: 1px solid rgba(255,255,255,.10);
-  background: rgba(255,255,255,.04);
-  color: var(--text);
-  padding: 10px 12px;
-  border-radius: 14px;
-  cursor: pointer;
-}
-.editor-row:hover{
-  border-color: rgba(99,102,241,.7);
-  background: rgba(99,102,241,.08);
-}
-.editor-row.active{
-  border-color: rgba(99,102,241,.95);
-  background: rgba(99,102,241,.12);
-  box-shadow: 0 0 0 3px rgba(99,102,241,.18);
-}
-
-.editor-row-title{
-  font-weight: 900;
-  font-size: 14px;
-  line-height: 1.15;
-}
-.editor-row-sub{
-  margin-top: 4px;
-  font-size: 12px;
-  opacity: .85;
-}
-
-.editor-empty{
-  opacity: .7;
-  font-size: 13px;
-  padding: 10px 2px;
-}
-
-.editor-hint{
-  opacity: .85;
-  margin: 8px 0 0;
-}
-
-.editor-mapbox{
-  position: relative;
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  overflow: hidden;
-  border-radius: 18px;
-  border: 1px solid rgba(255,255,255,.10);
-  background: rgba(0,0,0,.25);
-}
-.editor-mapbox img{
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display:block;
-  user-select:none;
-  -webkit-user-drag: none;
-}
-
-.ed-dot{
-  position:absolute;
-  width: 14px;
-  height: 14px;
-  border-radius: 999px;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 0 0 3px rgba(0,0,0,.55);
-}
-.ed-dot-target{
-  background: rgba(239,68,68,.95);
-  border: 2px solid rgba(255,255,255,.85);
-}
-.ed-dot-throw{
-  background: rgba(59,130,246,.95);
-  border: 2px solid rgba(255,255,255,.85);
-}
-.hidden{ display:none !important; }
-
-.editor-form{
-  margin-top: 10px;
-}
-
-.editor-grid{
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.editor-grid label{
-  display:flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 12px;
-  opacity: .95;
-}
-
-.editor-input{
-  width: 100%;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,.14);
-  background: rgba(0,0,0,.25);
-  color: var(--text);
-  padding: 10px 10px;
-  outline: none;
-}
-.editor-input:focus{
-  border-color: rgba(99,102,241,.9);
-  box-shadow: 0 0 0 3px rgba(99,102,241,.18);
-}
-
-.editor-actions-row{
-  display:flex;
-  gap: 10px;
-  margin-top: 12px;
-}
-
-.editor-actions-row .editor-btn{
-  flex: 0 0 auto;
-}
-
-.editor-small{
-  font-size: 12px;
-  opacity: .75;
-  margin-top: 8px;
-}
-
-.editor-coords{
-  grid-column: 1 / -1;
-  border: 1px solid rgba(255,255,255,.10);
-  border-radius: 16px;
-  padding: 10px 12px 12px;
-  background: rgba(255,255,255,.04);
-}
-.editor-coords-title{
-  font-weight: 900;
-  margin-bottom: 10px;
-}
-.editor-coords-grid{
-  display:grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  gap: 10px;
-}
-
-@media (max-width: 980px){
-  .editor-layout{
-    grid-template-columns: 1fr;
-  }
-  .editor-list{ max-height: 260px; }
-  .editor-coords-grid{
-    grid-template-columns: 1fr 1fr;
-  }
 }
