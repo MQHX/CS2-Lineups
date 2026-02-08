@@ -1,19 +1,227 @@
 {
   "lineups": [
     {
-      "id": "",
-      "type": "",
-      "side": "",
-      "name": "",
+      "id": "xbox_mid",
+      "type": "smoke",
+      "side": "T",
+      "name": "Xbox",
       "target": "",
       "variant": "",
-      "description": "",
-      "x": 38.1,
-      "y": 41.0,
-      "throw": { "x": 84.6, "y": 32.8 },
+      "description": "Jumpthrow",
+      "x": 47.3,
+      "y": 39.9,
+      "throw": { "x": 47.5, "y": 97.7 },
       "images": {
-        "stand": "images/",
-        "aim": "images/"
+        "stand": "images/dust2/xbox_1.png",
+        "aim": "images/dust2/xbox_2.png"
+      }
+    },
+    {
+      "id": "door_mid",
+      "type": "smoke",
+      "side": "T",
+      "name": "Door",
+      "target": "door",
+      "variant": "T Spawn",
+      "description": "Jumpthrow",
+      "x": 44.7,
+      "y": 35.2,
+      "throw": { "x": 44.2, "y": 86.8 },
+      "images": {
+        "stand": "images/dust2/door_1.png",
+        "aim": "images/dust2/door_2.png"
+      }
+    },
+    {
+      "id": "door_mid",
+      "type": "smoke",
+      "side": "T",
+      "name": "Door",
+      "target": "door",
+      "variant": "Suicide",
+      "description": "Throw",
+      "x": 44.7,
+      "y": 35.2,
+      "throw": { "x": 43.1, "y": 76.8 },
+      "images": {
+        "stand": "images/dust2/door_3.png",
+        "aim": "images/dust2/door_4.png"
+      }
+    },
+    {
+      "id": "top_mid",
+      "type": "smoke",
+      "side": "CT",
+      "name": "Top mid",
+      "target": "",
+      "variant": "",
+      "description": "Jumpthrow",
+      "x": 44.0,
+      "y": 70.5,
+      "throw": { "x": 47.0, "y": 20.6 },
+      "images": {
+        "stand": "images/dust2/mid_combo_1.png",
+        "aim": "images/dust2/mid_combo_3.png"
+      }
+    },
+    {
+      "id": "suicide",
+      "type": "smoke",
+      "side": "CT",
+      "name": "Suicide",
+      "target": "",
+      "variant": "",
+      "description": "Jumpthrow",
+      "x": 53.4,
+      "y": 63.1,
+      "throw": { "x": 47.0, "y": 20.6 },
+      "images": {
+        "stand": "images/dust2/mid_combo_1.png",
+        "aim": "images/dust2/mid_combo_2.png"
+      }
+    },
+    {
+      "id": "mid_pop",
+      "type": "flash",
+      "side": "CT",
+      "name": "Mid",
+      "target": "",
+      "variant": "",
+      "description": "Throw",
+      "x": 47.0,
+      "y": 36.9,
+      "throw": { "x": 47.0, "y": 20.6 },
+      "images": {
+        "stand": "images/dust2/mid_combo_1.png",
+        "aim": "images/dust2/mid_combo_4.png"
+      }
+    },
+    {
+      "id": "ct_smoke",
+      "type": "smoke",
+      "side": "T",
+      "name": "CT",
+      "target": "",
+      "variant": "",
+      "description": "Crouch + Jumpthrow",
+      "x": 50.4,
+      "y": 24.0,
+      "throw": { "x": 47.9, "y": 41.5 },
+      "images": {
+        "stand": "images/dust2/b_split_1.png",
+        "aim": "images/dust2/b_split_2.png"
+      }
+    },
+    {
+      "id": "long_smoke",
+      "type": "smoke",
+      "side": "T",
+      "name": "Long",
+      "target": "",
+      "variant": "",
+      "description": "Jumpthrow",
+      "x": 85.3,
+      "y": 43.5,
+      "throw": { "x": 42.8, "y": 86.7 },
+      "images": {
+        "stand": "images/dust2/long_1.png",
+        "aim": "images/dust2/long_2.png"
+      }
+    },
+    {
+      "id": "cross_smoke",
+      "type": "smoke",
+      "side": "T",
+      "name": "Cross",
+      "target": "",
+      "variant": "",
+      "description": "Throw",
+      "x": 80.7,
+      "y": 23.2,
+      "throw": { "x": 73.9, "y": 47.8 },
+      "images": {
+        "stand": "images/dust2/cross_1.png",
+        "aim": "images/dust2/cross_2.png"
+      }
+    },
+    {
+      "id": "ldoor_smoke",
+      "type": "smoke",
+      "side": "CT",
+      "name": "Long door",
+      "target": "",
+      "variant": "",
+      "description": "Jumpthrow",
+      "x": 67.5,
+      "y": 56.3,
+      "throw": { "x": 76.3, "y": 18.3 },
+      "images": {
+        "stand": "images/dust2/ldoor_1.png",
+        "aim": "images/dust2/ldoor_2.png"
+      }
+    },
+    {
+      "id": "short_smoke_1",
+      "type": "smoke",
+      "side": "T",
+      "name": "Short cross 1",
+      "target": "",
+      "variant": "",
+      "description": "Crouch + Throw",
+      "x": 66.0,
+      "y": 25.1,
+      "throw": { "x": 63.1, "y": 34.1 },
+      "images": {
+        "stand": "images/dust2/short_1.png",
+        "aim": "images/dust2/short_2.png"
+      }
+    },
+    {
+      "id": "short_smoke_2",
+      "type": "smoke",
+      "side": "T",
+      "name": "Short cross 2",
+      "target": "",
+      "variant": "",
+      "description": "Left and right click + Throw",
+      "x": 66.4,
+      "y": 18.7,
+      "throw": { "x": 63.1, "y": 34.1 },
+      "images": {
+        "stand": "images/dust2/short_1.png",
+        "aim": "images/dust2/short_3.png"
+      }
+    },
+    {
+      "id": "b_exec_1",
+      "type": "smoke",
+      "side": "T",
+      "name": "B door",
+      "target": "",
+      "variant": "",
+      "description": "Crouch + Jumpthrow",
+      "x": 24.8,
+      "y": 22.3,
+      "throw": { "x": 24.3, "y": 60.8 },
+      "images": {
+        "stand": "images/dust2/b_exec_1.png",
+        "aim": "images/dust2/b_exec_2.png"
+      }
+    },
+    {
+      "id": "b_exec_2",
+      "type": "smoke",
+      "side": "T",
+      "name": "B window",
+      "target": "",
+      "variant": "",
+      "description": "Jumpthrow",
+      "x": 27.3,
+      "y": 12.0,
+      "throw": { "x": 24.3, "y": 60.8 },
+      "images": {
+        "stand": "images/dust2/b_exec_1.png",
+        "aim": "images/dust2/b_exec_3.png"
       }
     }
 ],
@@ -21,10 +229,22 @@
 
   "executes": [
     {
-      "id": "",
-      "name": "",
-      "side": "",
-      "items": ["", "", ""]
+      "id": "mid_retake",
+      "name": "Mid push",
+      "side": "CT",
+      "items": ["top_mid", "suicide", "mid_pop"]
+    },
+    {
+      "id": "short_push",
+      "name": "Short push",
+      "side": "T",
+      "items": ["short_smoke_1", "short_smoke_2"]
+    },
+    {
+      "id": "B_exec",
+      "name": "B exec",
+      "side": "T",
+      "items": ["b_exec_1", "b_exec_2"]
     }
     ]
 }
